@@ -1,25 +1,25 @@
 #!/usr/bin/env perl
 
 ################################################################################
+# Description:
+#    1. Prints current date, time, and SVN revision of:
+#       * If '-i' option is specified: Root of working copy
+#       * If a path is given:          Given directory
+#       * If no path is given:         Current directory
+#    2. Performs an SVN status, aggregating changelists across directories, on:
+#       * If '-i' option is specified: List of directories in given file
+#       * If a path is given:          Given directory
+#       * If no path is given:         Current directory
 #
-#   Description: 1. Prints current date, time, and SVN revision of:
-#                   * If '-i' option is specified: Root of working copy
-#                   * If a path is given:          Given directory
-#                   * If no path is given:         Current directory
-#                2. Performs an SVN status, aggregating changelists across directories, on:
-#                   * If '-i' option is specified: List of directories in given file
-#                   * If a path is given:          Given directory
-#                   * If no path is given:         Current directory
-#
-#   Arguments: -i input-file
-#                 Path to file that contains a list of directories to operate on, one per line
-#              -d
-#                 Do not print current date, time, SVN revision, nor date and time of completion
-#
+# Arguments:
+#    * -i input-file
+#      Path to file that contains a list of directories to operate on, one per line
+#    * -d
+#      Do not print current date, time, SVN revision, nor date and time of completion
 ################################################################################
 
 
-# Modules
+# Pragmas and modules
 use Getopt::Std;
 use File::Basename;
 use Term::ANSIColor qw(:constants);

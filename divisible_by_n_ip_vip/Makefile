@@ -1,8 +1,4 @@
 ################################################################################
-# Will Chen
-# 2015-05-23
-# Version 0.3
-#
 # Description:
 #    * Makefile for "divisible by N" IP and "VIP"
 #

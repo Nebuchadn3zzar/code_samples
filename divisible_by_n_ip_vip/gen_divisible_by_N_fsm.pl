@@ -1,10 +1,6 @@
 #!/usr/bin/env perl
 
 ################################################################################
-# Will Chen
-# 2015-05-22
-# Version 0.1
-#
 # Description:
 #    * Generates a "divisible by N" finite state machine in Verilog
 #

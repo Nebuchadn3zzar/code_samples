@@ -1,8 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Will Chen
-// 2015-05-21
-// Version 1.1
-//
 // Description:
 //    * A simple but fairly complete UVM testbench for a simple "divisible by N" finite state machine
 //    * Requires a file 'div_by_define.svh' containing a `define for 'DIV_BY' with the value of N

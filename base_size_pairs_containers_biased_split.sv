@@ -1,8 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Will Chen
-// 2015-05-20
-// Version 0.3
-//
 // Description:
 //    * A fairly generic class that generates a list of non-overlapping (base address, size) pairs to be used to
 //      sparsely populate a block of memory
