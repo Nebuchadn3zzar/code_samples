@@ -28,8 +28,6 @@
 //    * Could probably call "pair" a more descriptive name
 ////////////////////////////////////////////////////////////////////////////////
 
-`timescale 1ns/1ns
-
 
 // List of base address and size pairs
 class base_size_pair_list #(int unsigned log2_locs = 32);  // Log (base 2) of number of memory locations
