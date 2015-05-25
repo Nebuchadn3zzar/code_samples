@@ -48,6 +48,8 @@ endinterface : div_if
 
 // tb.sv
 module tb();
+   `include "wave_dump.sv"
+
    // Interface instances
    div_if tb_div_if();
 
@@ -392,12 +394,12 @@ covergroup div_stim_cov_group with function sample(div_packet p);
    coverpoint p.data {  // Value of bitstream
       bins a[4] = {[0:$]};
    }
-endgroup  : div_stim_cov_group
+endgroup
 covergroup div_result_cov_group with function sample(div_packet p);
    coverpoint p.divisible {  // Divisibility result from DUT
       option.at_least = 1;
    }
-endgroup : div_result_cov_group
+endgroup
 class div_cov extends uvm_component;
    // Ports
    `uvm_analysis_imp_decl(_stim);    // Define analysis imp class for 'stim' imp
