@@ -172,11 +172,12 @@ class div_driver extends uvm_driver #(div_packet);
       // Assert for 2 clocks
       `uvm_info("DRV", $sformatf("Applying reset for 2 clocks..."), UVM_MEDIUM);
       @(posedge div_vif.clk);
-      div_vif.rst_n <= 1'b0;
+      div_vif.rst_n         <= 1'b0;
+      div_vif.bitstream     <= 1'b0;
+      div_vif.bitstream_val <= 1'b0;
       repeat (2) @(posedge div_vif.clk);
 
       // De-assert
-      @(posedge div_vif.clk);
       div_vif.rst_n <= 1'b1;
    endtask : reset
 endclass : div_driver
