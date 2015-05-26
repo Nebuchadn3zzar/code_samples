@@ -10,6 +10,9 @@
 #       * If '-i' option is specified: List of directories in given file
 #       * If a path is given:          Given directory
 #       * If no path is given:         Current directory
+#    * Using this script to perform 'svn status' on only select directories rather than on entire working copy has been
+#      observed to decrease run time from 10+ minutes to several seconds
+#    * Requires 'WORKSPACE' environment variable to be set to root of working copy, for 'svn info' command
 #
 # Arguments:
 #    * -i input-file
