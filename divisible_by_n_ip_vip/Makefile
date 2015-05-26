@@ -75,7 +75,8 @@ cov:
 # Target: clean   - Removes all generated files for starting over
 .PHONY: clean
 clean:
-	-rm -rf $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h urgReport ucli.key
+	-rm -rf $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd novas.* verdi* \
+   urgReport ucli.key
 
 # Target: help    - Lists each available make target and its purpose
 .PHONY: help
