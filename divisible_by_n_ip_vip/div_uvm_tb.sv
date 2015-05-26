@@ -83,9 +83,9 @@ endmodule : tb
 // div_packet.sv
 class div_packet extends uvm_sequence_item;
    // Fields
-   rand int unsigned                 num_bits;
-   rand logic [`MAX_STREAM_LEN-1:0]  data;
-   logic                             divisible;
+   rand int unsigned                num_bits;
+   rand logic [`MAX_STREAM_LEN-1:0] data;
+   logic                            divisible;
 
    `uvm_object_utils_begin(div_packet);  // Utility operations such as copy, compare, pack, etc.
       `uvm_field_int(num_bits,  UVM_DEFAULT | UVM_NOCOMPARE);  // UVM_NOCOMPARE: Exclude field from comparisons
@@ -97,6 +97,15 @@ class div_packet extends uvm_sequence_item;
    constraint num_bits_c {
       num_bits inside {[0:`MAX_STREAM_LEN]};
    }
+
+   function void post_randomize();
+      // Prevent 'num_bits' from biasing effective values of 'data' away from its upper range, resulting in incomplete
+      // coverage of 'div_packet.data'
+      int unsigned min_bits = $clog2(data);
+
+      // If necessary, increase length to be just enough to contain value of 'data'
+      num_bits = (num_bits < min_bits) ? min_bits : num_bits;
+   endfunction : post_randomize
 
    function new(string name="div_packet");
       super.new(name);
@@ -145,9 +154,7 @@ class div_driver extends uvm_driver #(div_packet);
       reset();
 
       `uvm_info("DRV",
-                $sformatf("Driving %0d bits of %s (%s)...",
-                          pkt.num_bits, $sformatf(hex_fmt_str, pkt.data),
-                          $sformatf(hex_fmt_str, pkt.data & (2**pkt.num_bits - 1))),  // Effective data
+                $sformatf("Driving %0d bits of %s...", pkt.num_bits, $sformatf(hex_fmt_str, pkt.data)),
                 UVM_MEDIUM);
       while (bits_remaining > 0) begin
          logic valid = $urandom();  // Randomise whether to drive valid data during this clock
