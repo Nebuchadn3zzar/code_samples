@@ -5,6 +5,7 @@
 # Arguments:
 #    * DIV_BY=N        (for setting N to something other than the default of 3)
 #    * UVM_VER=uvm-X.Y (for using UVM 1.1 if UVM 1.2 is not available)
+#    * TEST=test_name  (for running a test other than the default of 'test_base')
 #    * SEED=S          (for simulating using a seed other than the default of 1)
 #
 # Examples:
@@ -14,14 +15,14 @@
 #         * Generates a 'divisible by 5' finite state machine in Verilog
 #         * Writes a `define for 'DIV_BY' so that testbench knows what to expect from DUT
 #         * Compiles design and testbench
-#         * Runs a simulation to test the generated FSM
+#         * Runs a simulation (default 'test_base') to test the generated FSM
 #         * Generates a coverage report in HTML format
 #    * make ip DIV_BY=3
 #         * Generates a 'divisible by 3' finite state machine in Verilog
 #    * make compile UVM_VER=uvm-1.1
 #         * Compiles design and testbench using UVM 1.1 libraries instead of UVM 1.2
-#    * make sim SEED=1234
-#         * Runs a simulation with seed 1234
+#    * make sim TEST=test_mostly_divisible SEED=1234
+#         * Runs the test 'test_mostly_divisible' with a seed of 1234
 #
 # Limitations:
 #    * This is not really a Makefile, as it makes no attempt to manage dependencies; effectively just a collection of
@@ -36,12 +37,12 @@ OUT_VERILOG_FILE   = divisible_by_N.v
 OUT_TB_DEFINE_FILE = div_by_define.svh
 TB_FILE 	 	 	    = div_uvm_tb.sv
 
-TEST_NAME    = test_base
+TEST         = test_base
 UVM_DEFINES  = UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
 UVM_VER      = uvm-1.2
 COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(OUT_VERILOG_FILE) $(TB_FILE)
 SEED         = 1
-RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST_NAME) +UVM_VERBOSITY=UVM_MEDIUM
+RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
 # Target: all     - [Default] Makes both "IP" & "VIP", compiles design & testbench, runs sim, generates coverage report
@@ -92,7 +93,7 @@ debug:
 	@echo "OUT_VERILOG_FILE   = $(OUT_VERILOG_FILE)"
 	@echo "OUT_TB_DEFINE_FILE = $(OUT_TB_DEFINE_FILE)"
 	@echo "TB_FILE            = $(TB_FILE)"
-	@echo "TEST_NAME          = $(TEST_NAME)"
+	@echo "TEST               = $(TEST)"
 	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "UVM_VER            = $(UVM_VER)"
 	@echo "COMPILE_ARGS       = $(COMPILE_ARGS)"

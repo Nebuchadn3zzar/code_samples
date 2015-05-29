@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Description:
 //    * A simple but fairly complete UVM testbench for a simple 'divisible by N' finite state machine
+//    * Tests are contained in a separate file, 'test_collection.sv'
 //    * Requires a file 'div_by_define.svh' containing a `define for 'DIV_BY' with the value of N
 //    * Supports both UVM 1.1 and UVM 1.2
 //
@@ -9,6 +10,7 @@
 //    * div_if.sv
 //    * tb.sv
 //    * div_packet.sv
+//    * div_packet_mostly_divisible.sv
 //    * div_sequencer.sv
 //    * div_driver.sv
 //    * div_monitor.sv
@@ -18,11 +20,8 @@
 //    * div_cov.sv
 //    * my_env.sv
 //    * seq_lib.sv
-//    * base_test.sv
 //
 // Limitations:
-//    * Currently makes no attempt to guarantee that at least some of the randomly generated values are divisible by
-//      N; this is a problem only for large (>50) values of N and small numbers of packets
 //    * Does not use RAL, since DUT has no registers
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,6 +85,7 @@ class div_packet extends uvm_sequence_item;
    rand int unsigned                num_bits;
    rand logic [`MAX_STREAM_LEN-1:0] data;
    logic                            divisible;
+   rand int unsigned                modulo;
 
    `uvm_object_utils_begin(div_packet);  // Utility operations such as copy, compare, pack, etc.
       `uvm_field_int(num_bits,  UVM_DEFAULT | UVM_NOCOMPARE);  // UVM_NOCOMPARE: Exclude field from comparisons
@@ -96,6 +96,9 @@ class div_packet extends uvm_sequence_item;
    // Constraints
    constraint num_bits_c {
       num_bits inside {[0:`MAX_STREAM_LEN]};
+   }
+   constraint modulo_c {
+      modulo == (data % `DIV_BY);
    }
 
    function void post_randomize();
@@ -111,6 +114,21 @@ class div_packet extends uvm_sequence_item;
       super.new(name);
    endfunction : new
 endclass : div_packet
+
+// div_packet_mostly_divisible.sv
+class div_packet_mostly_divisible extends div_packet;
+   `uvm_object_utils(div_packet_mostly_divisible);  // Register object with factory
+
+   // Constraints
+   constraint mostly_divisible_c {
+      modulo dist {0             :/ 80,   // Evenly divisible by N
+                   [1:`DIV_BY-1] :/ 20};  // Not evenly divisible by N
+   }
+
+   function new(string name="div_packet_mostly_divisible");
+      super.new(name);
+   endfunction : new
+endclass : div_packet_mostly_divisible
 
 // div_sequencer.sv
 class div_sequencer extends uvm_sequencer #(div_packet);
@@ -154,7 +172,8 @@ class div_driver extends uvm_driver #(div_packet);
       reset();
 
       `uvm_info("DRV",
-                $sformatf("Driving %0d bits of %s...", pkt.num_bits, $sformatf(hex_fmt_str, pkt.data)),
+                $sformatf("Driving %0d bits of %s (mod %0d = %0d)...",
+                          pkt.num_bits, $sformatf(hex_fmt_str, pkt.data), `DIV_BY, pkt.modulo),
                 UVM_MEDIUM);
       while (bits_remaining > 0) begin
          logic valid = $urandom();  // Randomise whether to drive valid data during this clock
@@ -520,65 +539,5 @@ class div_seq extends uvm_sequence #(div_packet);
    endtask : body
 endclass : div_seq
 
-// base_test.sv
-class test_base extends uvm_test;
-   // Environment
-   my_env env;
+`include "test_collection.sv"
 
-   // Sequences
-   rand div_seq seq;
-
-   rand int unsigned num_values;
-
-   `uvm_component_utils(test_base);  // Register component with factory
-
-   // Constraints
-   constraint num_values_c {
-      num_values inside {[5:10]};
-   }
-
-   function new(string name, uvm_component parent);
-      super.new(name, parent);
-   endfunction : new
-
-   function void build_phase(uvm_phase phase);
-      // Construct environment using factory
-      env = my_env::type_id::create("env", this);
-
-      // Construct sequence using factory
-      seq = div_seq::type_id::create("seq");  // No 'parent', since sequence is an object, not a component
-   endfunction : build_phase
-
-   task main_phase(uvm_phase phase);
-      super.main_phase(phase);
-
-      phase.raise_objection(this);
-
-      // Randomise number of values to send
-      randomize(num_values);
-      `uvm_info("TEST", $sformatf("Randomised number of values to send to %0d", num_values), UVM_MEDIUM);
-
-      // Drive some random values
-      for (int i = 1; i <= num_values; i++) begin
-         `uvm_info("TEST", $sformatf("Driving value %0d of %0d...", i, num_values), UVM_MEDIUM);
-         seq.randomize();
-         seq.start(env.agt.sqr);
-      end
-
-      phase.drop_objection(this);
-   endtask : main_phase
-
-   virtual task shutdown_phase(uvm_phase phase);
-      // Wait for scoreboard to be empty
-      if (env.sb.queue_empty.is_off()) begin  // Queue not yet empty
-         `uvm_info("TEST", "Shutdown phase: Waiting for scoreboard to empty...", UVM_MEDIUM);
-         phase.raise_objection(this, "Waiting for scoreboard to empty...");
-         forever begin
-            env.sb.queue_empty.wait_trigger();  // FIXME: This should eventually time out in case the DUT misbehaves
-            if (env.sb.queue_empty.is_on()) begin  // Queue is now empty
-               phase.drop_objection(this, "Scoreboard is now empty");
-            end
-         end
-      end
-   endtask : shutdown_phase
-endclass : test_base
