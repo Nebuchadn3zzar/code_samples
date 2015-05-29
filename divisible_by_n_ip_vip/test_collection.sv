@@ -48,6 +48,7 @@ class test_base extends uvm_test;
       // Randomise number of values to send
       randomize(num_values);
       `uvm_info("TEST", $sformatf("Randomised number of values to send to %0d", num_values), UVM_MEDIUM);
+
       // Drive some random values
       for (int i = 1; i <= num_values; i++) begin
          `uvm_info("TEST", $sformatf("Driving value %0d of %0d...", i, num_values), UVM_MEDIUM);
@@ -63,12 +64,23 @@ class test_base extends uvm_test;
       if (env.sb.queue_empty.is_off()) begin  // Queue not yet empty
          `uvm_info("TEST", "Shutdown phase: Waiting for scoreboard to empty...", UVM_MEDIUM);
          phase.raise_objection(this, "Waiting for scoreboard to empty...");
-         forever begin
-            env.sb.queue_empty.wait_trigger();  // FIXME: This should eventually time out in case the DUT misbehaves
-            if (env.sb.queue_empty.is_on()) begin  // Queue is now empty
-               phase.drop_objection(this, "Scoreboard is now empty");
+         fork
+            forever begin
+               env.sb.queue_empty.wait_trigger();
+               if (env.sb.queue_empty.is_on()) begin  // Queue is now empty
+                  `uvm_info("TEST", "Shutdown phase: Scoreboard is now empty", UVM_MEDIUM);
+                  phase.drop_objection(this, "Scoreboard is now empty");
+               end
             end
-         end
+            begin
+               int timeout_us = 20;
+               #(1us * timeout_us);
+               `uvm_fatal("TEST",
+                          $sformatf("Shutdown phase: Timed out after waiting %0d us for scoreboard to empty!",
+                                    timeout_us));
+            end
+         join_any
+         disable fork;
       end
    endtask : shutdown_phase
 endclass : test_base
