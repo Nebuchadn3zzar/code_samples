@@ -1,6 +1,6 @@
 ################################################################################
 # Description:
-#    * Makefile for "divisible by N" IP and "VIP"
+#    * Makefile for 'divisible by N' "IP" and "VIP"
 #
 # Arguments:
 #    * DIV_BY=N        (for setting N to something other than the default of 3)
@@ -11,13 +11,13 @@
 #    * make help
 #         * Lists each available make target and its purpose
 #    * make DIV_BY=5
-#         * Generates a "divisible by 5" finite state machine in Verilog
+#         * Generates a 'divisible by 5' finite state machine in Verilog
 #         * Writes a `define for 'DIV_BY' so that testbench knows what to expect from DUT
 #         * Compiles design and testbench
 #         * Runs a simulation to test the generated FSM
 #         * Generates a coverage report in HTML format
 #    * make ip DIV_BY=3
-#         * Generates a "divisible by 3" finite state machine in Verilog
+#         * Generates a 'divisible by 3' finite state machine in Verilog
 #    * make compile UVM_VER=uvm-1.1
 #         * Compiles design and testbench using UVM 1.1 libraries instead of UVM 1.2
 #    * make sim SEED=1234
@@ -43,11 +43,12 @@ COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER
 SEED         = 1
 RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST_NAME) +UVM_VERBOSITY=UVM_MEDIUM
 
-# Target: all     - [Default] Makes both IP & "VIP", compiles design & testbench, runs sim, generates coverage report
+
+# Target: all     - [Default] Makes both "IP" & "VIP", compiles design & testbench, runs sim, generates coverage report
 .PHONY: all
 all: ip vip compile sim cov
 
-# Target: ip      - Generates a "divisible by N" finite state machine in Verilog, N being value of 'DIV_BY' macro
+# Target: ip      - Generates a 'divisible by N' finite state machine in Verilog, N being value of 'DIV_BY' macro
 .PHONY: ip
 ip:
 	perl $(GEN_FSM_SCRIPT) -n $(DIV_BY) -o $(OUT_VERILOG_FILE)
@@ -55,7 +56,7 @@ ip:
 # Target: vip     - Writes a `define for 'DIV_BY' so that testbench knows what to expect from the DUT
 .PHONY: vip
 vip:
-	echo "\`define DIV_BY $(DIV_BY)  // DUT is a \"divisible-by-N\" FSM; \`DIV_BY = N" > $(OUT_TB_DEFINE_FILE)
+	echo "\`define DIV_BY $(DIV_BY)  // DUT is a 'divisible by N' FSM; \`DIV_BY = N" > $(OUT_TB_DEFINE_FILE)
 
 # Target: compile - Compiles design and testbench
 .PHONY: compile

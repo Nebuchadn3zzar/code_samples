@@ -2,14 +2,14 @@
 
 ################################################################################
 # Description:
-#    * Generates a "divisible by N" finite state machine in Verilog
+#    * Generates a 'divisible by N' finite state machine in Verilog
 #
 # Arguments:
 #    * -n N
 #    * -o output_file_name.v
 #
 # Output:
-#    * A file, named according to the '-o' option, that contains a "divisible by N" FSM in Verilog
+#    * A file, named according to the '-o' option, that contains a 'divisible by N' FSM in Verilog
 #    * Prints to standard output whether the script succeeded
 #
 # Examples:
@@ -58,10 +58,10 @@ if (!Scalar::Util::looks_like_number($div_by) or ($div_by <= 0)) {
    die("Error: N must be a non-negative and non-zero number!\n");
 }
 elsif ($div_by == 1) {
-   die("Error: All numbers are divisible by 1; a \"divisible by 1\" FSM would be pointless!\n");
+   die("Error: All numbers are divisible by 1; a 'divisible by 1' FSM would be pointless!\n");
 }
 $div_by =~ s/^0+//;  # Remove any leading zeroes
-printf("Generating a \"divisible by $div_by\" finite state machine and writing it to file \"$out_file_name\"...\n");
+printf("Generating a 'divisible by $div_by' finite state machine and writing it to file \"$out_file_name\"...\n");
 
 # Check whether output file already exists, and then open file handle for writing
 if (-f "$out_file_name") {

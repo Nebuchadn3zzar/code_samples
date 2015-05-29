@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Description:
-//    * A simple but fairly complete UVM testbench for a simple "divisible by N" finite state machine
+//    * A simple but fairly complete UVM testbench for a simple 'divisible by N' finite state machine
 //    * Requires a file 'div_by_define.svh' containing a `define for 'DIV_BY' with the value of N
 //    * Supports both UVM 1.1 and UVM 1.2
 //
