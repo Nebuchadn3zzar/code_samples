@@ -32,7 +32,7 @@ class test_base extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   function void build_phase(uvm_phase phase);
+   virtual function void build_phase(uvm_phase phase);
       // Construct environment using factory
       env = my_env::type_id::create("env", this);
 
@@ -40,7 +40,7 @@ class test_base extends uvm_test;
       seq = div_seq::type_id::create("seq");  // No 'parent', since sequence is an object, not a component
    endfunction : build_phase
 
-   task main_phase(uvm_phase phase);
+   virtual task main_phase(uvm_phase phase);
       super.main_phase(phase);
 
       phase.raise_objection(this);
@@ -93,7 +93,7 @@ class test_mostly_divisible extends test_base;
       super.new(name, parent);
    endfunction : new
 
-   function void build_phase(uvm_phase phase);
+   virtual function void build_phase(uvm_phase phase);
       super.build_phase(phase);
 
       // Factory overrides
