@@ -25,8 +25,9 @@
 #         * Runs the test 'test_mostly_divisible' with a seed of 1234
 #
 # Limitations:
-#    * This is not really a Makefile, as it makes no attempt to manage dependencies; effectively just a collection of
-#      aliases and variables
+#    * Takes a conservative and inefficient approach to managing dependencies; could be rewritten such that targets are
+#      actual files, rather than being purely actions to take
+#    * Mostly just a collection of aliases and variables
 #    * 'compile', 'sim', and 'cov' targets require Synopsys VCS
 ################################################################################
 
@@ -61,17 +62,17 @@ vip:
 
 # Target: compile - Compiles design and testbench
 .PHONY: compile
-compile:
+compile: ip vip
 	vcs $(COMPILE_ARGS)
 
 # Target: sim     - Runs a simulation using VCS
 .PHONY: sim
-sim:
+sim: compile
 	./simv +ntb_random_seed=$(SEED) $(RUN_ARGS)
 
 # Target: cov     - Generates a coverage report in HTML format
 .PHONY: cov
-cov:
+cov: sim
 	urg -dir simv.vdb
 
 # Target: clean   - Removes all generated files for starting over
