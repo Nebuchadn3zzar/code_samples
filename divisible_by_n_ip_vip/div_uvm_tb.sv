@@ -383,8 +383,18 @@ class div_scoreboard extends uvm_component;
 
    // Compares an observed packet against list of expected packets
    virtual function void write_observed(div_packet obs);
+      div_packet expected;
+
+      // Check that at least one candidate exists in list of expected packets
+      if (expected_packets.size() == 0) begin
+         `uvm_error("SB",
+                    $sformatf("Observed packet, but none expected: Data %s, result %b",
+                              $sformatf(hex_fmt_str, obs.data), obs.divisible));
+         return;
+      end
+
       // In-order scoreboard, so compare against only first item in queue
-      div_packet expected = expected_packets.pop_front();
+      expected = expected_packets.pop_front();
       if (obs.compare(expected)) begin  // Successful match
          `uvm_info("SB",
                    $sformatf("Successfully matched observed packet against expected (data %s, result %b)",
