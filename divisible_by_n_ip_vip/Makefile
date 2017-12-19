@@ -35,7 +35,7 @@ GEN_FSM_SCRIPT     = gen_divisible_by_N_fsm.pl
 DIV_BY             = 3  # Default value; meant to be overridden by user (i.e. 'make DIV_BY=5')
 OUT_VERILOG_FILE   = divisible_by_N.v
 OUT_TB_DEFINE_FILE = div_by_define.svh
-TB_FILE 	 	 	    = div_uvm_tb.sv
+TB_FILE            = div_uvm_tb.sv
 
 TEST         = test_base
 UVM_DEFINES  = UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
