@@ -241,7 +241,7 @@ class div_monitor extends uvm_monitor;
 
    // Samples input bitstream into DUT
    virtual task sample_stim();
-      div_packet ap = new();
+      div_packet ap = div_packet::type_id::create("ap", this);
       int unsigned                bitstream_len_so_far = 0;
       logic [`MAX_STREAM_LEN-1:0] bitstream_val_so_far = 'd0;
 
@@ -266,7 +266,7 @@ class div_monitor extends uvm_monitor;
 
    // Samples output result from DUT
    virtual task sample_result();
-      div_packet ap = new();
+      div_packet ap = div_packet::type_id::create("ap", this);
 
       while (1) begin  // Loop indefinitely until reset
          @(posedge div_vif.clk);
@@ -338,7 +338,7 @@ class div_ref_model extends uvm_component;
 
    // Predicts an expected packet from an observed bitstream
    virtual function void write(div_packet stim);
-      div_packet ap = new();
+      div_packet ap = div_packet::type_id::create("ap", this);
       ap.data      = stim.data;
       ap.divisible = ((stim.data % `DIV_BY) == 0);
       `uvm_info("REF_MDL",
