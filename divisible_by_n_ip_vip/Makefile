@@ -24,10 +24,7 @@
 #    * make sim TEST=test_mostly_divisible SEED=1234
 #         * Runs the test 'test_mostly_divisible' with a seed of 1234
 #
-# Limitations:
-#    * Takes a conservative and inefficient approach to managing dependencies; could be rewritten such that targets are
-#      actual files, rather than being purely actions to take
-#    * Mostly just a collection of aliases and variables
+# Notes:
 #    * 'compile', 'sim', and 'cov' targets require Synopsys VCS
 ################################################################################
 
@@ -46,34 +43,65 @@ SEED         = 1
 RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
+################################################################################
+# Collection of human-friendly aliases for actual files and actions
+################################################################################
+
 # Target: all     - [Default] Makes both "IP" & "VIP", compiles design & testbench, runs sim, generates coverage report
 .PHONY: all
 all: ip vip compile sim cov
 
 # Target: ip      - Generates a 'divisible by N' finite state machine in Verilog, N being value of 'DIV_BY' macro
 .PHONY: ip
-ip:
-	perl $(GEN_FSM_SCRIPT) -n $(DIV_BY) -o $(OUT_VERILOG_FILE)
+ip: $(OUT_VERILOG_FILE)
 
 # Target: vip     - Writes a `define for 'DIV_BY' so that testbench knows what to expect from the DUT
 .PHONY: vip
-vip:
-	echo "\`define DIV_BY $(DIV_BY)  // DUT is a 'divisible by N' FSM; \`DIV_BY = N" > $(OUT_TB_DEFINE_FILE)
+vip: $(OUT_TB_DEFINE_FILE)
 
 # Target: compile - Compiles design and testbench
 .PHONY: compile
-compile: ip vip
-	vcs $(COMPILE_ARGS)
+compile: simv
 
 # Target: sim     - Runs a simulation using VCS
 .PHONY: sim
-sim: compile
-	./simv +ntb_random_seed=$(SEED) $(RUN_ARGS)
+sim: run_sim
 
 # Target: cov     - Generates a coverage report in HTML format
 .PHONY: cov
-cov: sim
+cov: gen_cov_report
+
+
+################################################################################
+# Dependencies between files, and implementations of actions
+################################################################################
+
+# Design files
+$(OUT_VERILOG_FILE): $(GEN_FSM_SCRIPT)
+	perl $(GEN_FSM_SCRIPT) -n $(DIV_BY) -o $(OUT_VERILOG_FILE)
+
+# Testbench files
+$(OUT_TB_DEFINE_FILE):
+	echo "\`define DIV_BY $(DIV_BY)  // DUT is a 'divisible by N' FSM; \`DIV_BY = N" > $(OUT_TB_DEFINE_FILE)
+
+# Simulator executable
+simv: $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE)
+	vcs $(COMPILE_ARGS)
+
+# Run simulation
+.PHONY: run_sim
+run_sim: simv
+	./simv +ntb_random_seed=$(SEED) $(RUN_ARGS)
+
+# Coverage report
+.PHONY: gen_cov_report
+gen_cov_report:
 	urg -dir simv.vdb
+
+
+################################################################################
+# Other miscellaneous targets
+################################################################################
 
 # Target: clean   - Removes all generated files for starting over
 .PHONY: clean
