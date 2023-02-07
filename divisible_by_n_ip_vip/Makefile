@@ -29,7 +29,7 @@
 ################################################################################
 
 
-GEN_FSM_SCRIPT     = gen_divisible_by_N_fsm.pl
+GEN_FSM_SCRIPT     = gen_divisible_by_N_fsm.py
 DIV_BY             = 3  # Default value; meant to be overridden by user (i.e. 'make DIV_BY=5')
 OUT_VERILOG_FILE   = divisible_by_N.v
 OUT_TB_DEFINE_FILE = div_by_define.svh
@@ -78,7 +78,7 @@ cov: gen_cov_report
 
 # Design files
 $(OUT_VERILOG_FILE): $(GEN_FSM_SCRIPT)
-	perl $(GEN_FSM_SCRIPT) -n $(DIV_BY) -o $(OUT_VERILOG_FILE)
+	python $(GEN_FSM_SCRIPT) $(DIV_BY) $(OUT_VERILOG_FILE)
 
 # Testbench files
 $(OUT_TB_DEFINE_FILE):
