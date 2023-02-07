@@ -40,9 +40,9 @@ interface div_if();
    logic clk;
    logic rst_n;
    logic bitstream;
-   logic bitstream_val;
+   logic bitstream_vld;
    logic divisible;
-   logic result_val;
+   logic result_vld;
 endinterface : div_if
 
 // tb.sv
@@ -65,9 +65,9 @@ module tb();
       .clk     (clk),
       .rst_n   (tb_div_if.rst_n),
       .in      (tb_div_if.bitstream),
-      .in_val  (tb_div_if.bitstream_val),
+      .in_vld  (tb_div_if.bitstream_vld),
       .out     (tb_div_if.divisible),
-      .out_val (tb_div_if.result_val)
+      .out_vld (tb_div_if.result_vld)
    );
 
    // Run test
@@ -179,7 +179,7 @@ class div_driver extends uvm_driver #(div_packet);
          logic valid = $urandom();  // Randomise whether to drive valid data during this clock
 
          @(posedge div_vif.clk);
-         div_vif.bitstream_val <= valid;
+         div_vif.bitstream_vld <= valid;
          if (valid) begin
             div_vif.bitstream <= pkt.data[(bits_remaining--) - 1];
          end
@@ -187,7 +187,7 @@ class div_driver extends uvm_driver #(div_packet);
 
       // De-assert 'valid'
       @(posedge div_vif.clk);
-      div_vif.bitstream_val <= 1'b0;
+      div_vif.bitstream_vld <= 1'b0;
    endtask : send_item
 
    // Asserts reset
@@ -200,7 +200,7 @@ class div_driver extends uvm_driver #(div_packet);
       @(posedge div_vif.clk);
       div_vif.rst_n         <= 1'b0;
       div_vif.bitstream     <= 1'b0;
-      div_vif.bitstream_val <= 1'b0;
+      div_vif.bitstream_vld <= 1'b0;
       repeat (2) @(posedge div_vif.clk);
 
       // De-assert
@@ -250,7 +250,7 @@ class div_monitor extends uvm_monitor;
          if (!div_vif.rst_n) begin  // DUT is being reset
             break;
          end
-         else if (div_vif.bitstream_val) begin  // Input bitstream into DUT is valid
+         else if (div_vif.bitstream_vld) begin  // Input bitstream into DUT is valid
             bitstream_len_so_far++;
             bitstream_val_so_far = (bitstream_val_so_far << 1) | div_vif.bitstream;  // Update bitstream value
             ap.num_bits = bitstream_len_so_far;
@@ -273,7 +273,7 @@ class div_monitor extends uvm_monitor;
          if (!div_vif.rst_n) begin  // DUT is being reset
             break;
          end
-         else if (div_vif.result_val) begin  // Output result from DUT is valid
+         else if (div_vif.result_vld) begin  // Output result from DUT is valid
             ap.divisible = div_vif.divisible;  // Sample DUT output
             `uvm_info("MON", $sformatf("Observed output result %b", ap.divisible), UVM_MEDIUM);
             result_analysis_port.write(ap);

@@ -127,7 +127,7 @@ def gen_verilog_src(orig_cmd_str, divisor, out_fh):
 
     # Module declaration
     out_fh.write(f"// \"Divisible by {divisor}\" finite state machine\n")
-    out_fh.write(f"module divisible_by_N(clk, rst_n, in, in_val, out, out_val);\n")
+    out_fh.write(f"module divisible_by_N(clk, rst_n, in, in_vld, out, out_vld);\n")
 
     # State enumerations
     out_fh.write(f"    // State enumerations\n")
@@ -138,11 +138,11 @@ def gen_verilog_src(orig_cmd_str, divisor, out_fh):
     out_fh.write(f"\n")
 
     # Input, output, wire, reg declarations
-    out_fh.write(f"    input wire clk, rst_n, in, in_val;\n")
-    out_fh.write(f"    output wire out, out_val;\n")
+    out_fh.write(f"    input wire clk, rst_n, in, in_vld;\n")
+    out_fh.write(f"    output wire out, out_vld;\n")
     out_fh.write(f"\n")
     out_fh.write(f"    reg [{num_state_bits - 1}:0] cs, ns;\n")
-    out_fh.write(f"    reg val_d1;  // Input valid signal, but delayed by 1 clock\n")
+    out_fh.write(f"    reg vld_d1;  // Input valid signal, but delayed by 1 clock\n")
     out_fh.write(f"\n")
 
     # Sequential logic
@@ -150,11 +150,11 @@ def gen_verilog_src(orig_cmd_str, divisor, out_fh):
     out_fh.write(f"    always @(posedge clk) begin\n")
     out_fh.write(f"        if (~rst_n) begin\n")
     out_fh.write(f"            cs     <= 'd0;\n")
-    out_fh.write(f"            val_d1 <= 'd0;\n")
+    out_fh.write(f"            vld_d1 <= 'd0;\n")
     out_fh.write(f"        end\n")
     out_fh.write(f"        else begin\n")
-    out_fh.write(f"            if (in_val) cs <= ns;  // Advance state only when input is valid\n")
-    out_fh.write(f"            val_d1 <= in_val;      // Indicates that output result is valid\n")
+    out_fh.write(f"            if (in_vld) cs <= ns;  // Advance state only when input is valid\n")
+    out_fh.write(f"            vld_d1 <= in_vld;      // Indicates that output result is valid\n")
     out_fh.write(f"        end\n")
     out_fh.write(f"    end\n")
     out_fh.write(f"\n")
@@ -175,7 +175,7 @@ def gen_verilog_src(orig_cmd_str, divisor, out_fh):
     # Output wire assignments
     out_fh.write(f"    // Output wire assignments\n")
     out_fh.write(f"    assign out     = (cs == s_mod0);  // If in state 's_mod0', divisible by {divisor}\n")
-    out_fh.write(f"    assign out_val = val_d1;          // Output delay is always exactly 1 clock\n")
+    out_fh.write(f"    assign out_vld = vld_d1;          // Output delay is always exactly 1 clock\n")
 
     # End module declaration
     out_fh.write(f"endmodule : divisible_by_N\n")
