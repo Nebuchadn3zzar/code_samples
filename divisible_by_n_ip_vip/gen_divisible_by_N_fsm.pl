@@ -1,143 +1,182 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
 
 ################################################################################
 # Description:
 #    * Generates a 'divisible by N' finite state machine in Verilog
 #
 # Arguments:
-#    * -n N
-#    * -o output_file_name.v
+#    * divisor (positional)
+#      Fixed integer divisor N of generated 'divisible by N' Verilog module
+#    * out_file_name (positional)
+#      Desired name of generated Verilog source file
+#    * --help (optional)
+#      Displays help message
 #
 # Output:
-#    * A file, named according to the '-o' option, that contains a 'divisible by N' FSM in Verilog
+#    * A file, named according to the 'out_file_name' positional argument, that
+#      contains a 'divisible by N' Verilog module
 #    * Prints to standard output whether the script succeeded
 #
 # Examples:
-#    * gen_divisible_by_N_fsm.pl -n 3 -o divisible_by_3.v
-#      Generates an FSM in a file named "divisible_by_3.v" that outputs '1' whenever its input bitstream thus far is
-#      divisible by 3, and '0' otherwise
-#    * gen_divisible_by_N_fsm.pl -n 5 -o divisible_by_5.v
-#      Generates an FSM in a file named "divisible_by_5.v" that outputs '1' whenever its input bitstream thus far is
-#      divisible by 5, and '0' otherwise
+#    * gen_divisible_by_N_fsm.py 3 divisible_by_3.v
+#      Generates an FSM in a file named "divisible_by_3.v" that outputs '1'
+#      whenever its input bitstream thus far is divisible by 3, and '0'
+#      otherwise
+#    * gen_divisible_by_N_fsm.py 5 divisible_by_5.v
+#      Generates an FSM in a file named "divisible_by_5.v" that outputs '1'
+#      whenever its input bitstream thus far is divisible by 5, and '0'
+#      otherwise
+#    * gen_divisible_by_N_fsm.py --help
+#      Prints description of this script and its arguments, then exits
 #
 # Limitations:
 #    * Imposes no upper bound on N, allowing user to go wild
-#    * Uses more states than necessary for even values of N; could use some optimisation
-#    * I'm not an RTL designer, so the generated Verilog is by no means bulletproof, and is not likely to be following
-#      best practices
 ################################################################################
 
 
-# Pragmas and modules
-use strict;
-use warnings;
-use File::Basename;
-use Getopt::Std;
-use Scalar::Util;
-use POSIX;
+# Modules
+import argparse
+import math
+import os
+import sys
+import time
+import warnings
 
+# Main function
+def main(argv):
+    # Configure argument parser
+    desc_str = "Generates a Verilog module that takes a bitstream as input, " \
+               "and outputs whether the bitstream thus far is divisible by " \
+               "a fixed integer divisor N"
+    parser = argparse.ArgumentParser(description=desc_str)
+    parser.add_argument(
+        "divisor",  # Positional argument
+        type=int,
+        action="store",
+        help="Fixed integer divisor N of generated 'divisible by N' Verilog " \
+             "module",
+    )
+    parser.add_argument(
+        "out_file_name",  # Positional argument
+        type=str,
+        action="store",
+        help="Desired name of generated Verilog source file",
+    )
 
-# Store complete command line string for inclusion in header of generated file
-my $script_name = basename($0);
-my $command_str = $script_name;
-foreach my $arg (@ARGV) {
-   $command_str = $command_str . " $arg";
-}
+    # Print current time
+    print(time.strftime("%a %Y-%m-%d %I:%M:%S %p"))
+    print("")
 
-# Parse options
-our ($opt_n, $opt_o);
-getopts('n:o:');
-if (!defined($opt_n) or !defined($opt_o)) {
-   die("Usage: $script_name -n N -o output_file_name.v\n");
-}
-my $div_by        = $opt_n;
-my $out_file_name = $opt_o;
+    # Store complete command line string for inclusion in header of generated
+    # Verilog source file
+    orig_cmd_str = sys.argv[0] + " " + " ".join(sys.argv[1:])
 
-# Perform some sanity checks and input sanitation
-if (!Scalar::Util::looks_like_number($div_by) or ($div_by <= 0)) {
-   die("Error: N must be a non-negative and non-zero number!\n");
-}
-elsif ($div_by == 1) {
-   die("Error: All numbers are divisible by 1; a 'divisible by 1' FSM would be pointless!\n");
-}
-$div_by =~ s/^0+//;  # Remove any leading zeroes
-printf("Generating a 'divisible by $div_by' finite state machine and writing it to file \"$out_file_name\"...\n");
+    # Parse arguments
+    print("Parsing arguments...")
+    args = parser.parse_args()
+    for (arg, val) in sorted(vars(args).items()):
+        print("   * {}: {}".format(arg, val))
+    print("")
 
-# Check whether output file already exists, and then open file handle for writing
-if (-f "$out_file_name") {
-   printf("Warning: Overwriting existing file \"$out_file_name\"!\n");
-}
-open(OUT_FILE, "> $out_file_name");
+    # Perform some sanity checks and input sanitation
+    validate_args(args)
 
-# Write file header
-my $date = `date`; chomp($date);
-printf(OUT_FILE "////////////////////////////////////////////////////////////////////////////////\n");
-printf(OUT_FILE "// This file was generated by \"$script_name\" on $date\n");
-printf(OUT_FILE "// Command: $command_str\n");
-printf(OUT_FILE "//\n");
-printf(OUT_FILE "// Description:\n");
-printf(OUT_FILE "//    * Takes a bitstream as input\n");
-printf(OUT_FILE "//    * Outputs whether the bitstream thus far is divisible by $div_by\n");
-printf(OUT_FILE "//    * Both input and output are qualified by 'valid' signals\n");
-printf(OUT_FILE "////////////////////////////////////////////////////////////////////////////////\n");
-printf(OUT_FILE "\n");
-printf(OUT_FILE "\n");
+    # Check whether output file already exists, open file handle, generate and
+    # write Verilog source code, and close file handle
+    if os.path.exists(args.out_file_name):
+        msg = f"Overwriting existing file '{args.out_file_name}'"
+        warnings.warn(msg, RuntimeWarning)
+    out_fh = open(args.out_file_name, "w")
+    gen_verilog_src(orig_cmd_str, args.divisor, out_fh)
+    out_fh.close()
+    print("")
 
-# Module declaration
-printf(OUT_FILE "// \"Divisible by $div_by\" finite state machine\n");
-printf(OUT_FILE "module divisible_by_N(clk, rst_n, in, in_val, out, out_val);\n");
+    # Exit
+    print("Done.")
+    print("")
+    sys.exit(0)  # Success
 
-# State enumerations
-my $num_state_bits = POSIX::ceil(log($div_by) / log(2));  # Number of bits required for N states
-my $bin_fmt_str = sprintf("%%0%0db", $num_state_bits);
-for (my $i = 0; $i < $div_by; $i++) {
-   printf(OUT_FILE "   localparam s_mod$i = $num_state_bits" . "'b" . sprintf($bin_fmt_str, $i) . ";\n");
-}
-printf(OUT_FILE "\n");
+# Performs some sanity checks and input sanitation
+def validate_args(args):
+    if args.divisor <= 0:
+        msg = f"Given divisor {args.divisor}, but divisor must be a " \
+               "non-negative and non-zero number"
+        raise Exception(msg)
 
-# Input, output, wire, reg declarations
-printf(OUT_FILE "   input wire clk, rst_n, in, in_val;\n");
-printf(OUT_FILE "   output wire out, out_val;\n");
-printf(OUT_FILE "\n");
-printf(OUT_FILE "   reg [%0d:0] cs, ns;\n", $num_state_bits - 1);
-printf(OUT_FILE "   reg val_d1;\n");
-printf(OUT_FILE "\n");
+    if args.divisor == 1:
+        msg = f"Given divisor {args.divisor}, but all numbers are divisible " \
+               "by 1; a 'divisible by 1' FSM would be pointless"
+        raise Exception(msg)
 
-# Sequential logic
-printf(OUT_FILE "   always @(posedge clk) begin\n");
-printf(OUT_FILE "      if (~rst_n) begin\n");
-printf(OUT_FILE "         cs     <= 'd0;\n");
-printf(OUT_FILE "         val_d1 <= 'd0;\n");
-printf(OUT_FILE "      end\n");
-printf(OUT_FILE "      else begin\n");
-printf(OUT_FILE "         if (in_val) cs <= ns;  // Advance state machine only when input bitstream is valid\n");
-printf(OUT_FILE "         val_d1 <= in_val;      // Indicates that output result is valid\n");
-printf(OUT_FILE "      end\n");
-printf(OUT_FILE "   end\n");
-printf(OUT_FILE "\n");
+# Generates and writes Verilog source to given output file handle
+def gen_verilog_src(orig_cmd_str, divisor, out_fh):
+    # File header
+    timestamp = time.strftime("%a %Y-%m-%d %I:%M:%S %p")
+    out_fh.write(f"///////////////////////////////////////////////////////////////////////////////\n")
+    out_fh.write(f"// Generated by the following command on {timestamp}:\n")
+    out_fh.write(f"// {orig_cmd_str}\n")
+    out_fh.write(f"//\n")
+    out_fh.write(f"// Description:\n")
+    out_fh.write(f"//    * Takes a bitstream as input\n")
+    out_fh.write(f"//    * Outputs whether the bitstream thus far is divisible by {divisor}\n")
+    out_fh.write(f"//    * Both input and output are qualified by 'valid' signals\n")
+    out_fh.write(f"///////////////////////////////////////////////////////////////////////////////\n")
+    out_fh.write(f"\n")
+    out_fh.write(f"\n")
 
-# State transition combinational logic
-printf(OUT_FILE "   always @(*) begin\n");
-printf(OUT_FILE "      case (cs)\n");
-for (my $i = 0; $i < $div_by; $i++) {
-   my $one_transition  = (($i * 2) + 1) % $div_by;  # Transition to take if next bit in bitstream is a '1'
-   my $zero_transition = (($i * 2)    ) % $div_by;  # Transition to take if next bit in bitstream is a '0'
-   printf(OUT_FILE "         s_mod$i:  ns = (in) ? s_mod$one_transition : s_mod$zero_transition;\n");
-}
-printf(OUT_FILE "         default: ns = cs;\n");
-printf(OUT_FILE "      endcase\n");
-printf(OUT_FILE "   end\n");
-printf(OUT_FILE "\n");
+    # Module declaration
+    out_fh.write(f"// \"Divisible by {divisor}\" finite state machine\n")
+    out_fh.write(f"module divisible_by_N(clk, rst_n, in, in_val, out, out_val);\n")
 
-# Output wire assignments
-printf(OUT_FILE "   assign out     = (cs == s_mod0);  // If in state 's_mod0', bitstream so far is divisible by $div_by\n");
-printf(OUT_FILE "   assign out_val = val_d1;          // Output delay is always exactly 1 clock\n");
+    # State enumerations
+    num_state_bits = math.ceil(math.log2(divisor))  # Bits required to encode N states
+    for i in range(divisor):
+        i_bin_padded = "{:b}".format(i).zfill(num_state_bits)
+        out_fh.write(f"    localparam s_mod{i} = {num_state_bits}'b{i_bin_padded};\n")
+    out_fh.write(f"\n")
 
-# End module declaration
-printf(OUT_FILE "endmodule : divisible_by_N\n");
-printf(OUT_FILE "\n");
+    # Input, output, wire, reg declarations
+    out_fh.write(f"    input wire clk, rst_n, in, in_val;\n")
+    out_fh.write(f"    output wire out, out_val;\n")
+    out_fh.write(f"\n")
+    out_fh.write(f"    reg [{num_state_bits - 1}:0] cs, ns;\n")
+    out_fh.write(f"    reg val_d1;\n")
+    out_fh.write(f"\n")
 
-# Report success and close file handle
-printf("Done!\n");
-close(OUT_FILE);
+    # Sequential logic
+    out_fh.write(f"    always @(posedge clk) begin\n")
+    out_fh.write(f"        if (~rst_n) begin\n")
+    out_fh.write(f"            cs     <= 'd0;\n")
+    out_fh.write(f"            val_d1 <= 'd0;\n")
+    out_fh.write(f"        end\n")
+    out_fh.write(f"        else begin\n")
+    out_fh.write(f"            if (in_val) cs <= ns;  // Advance state machine only when input bitstream is valid\n")
+    out_fh.write(f"            val_d1 <= in_val;      // Indicates that output result is valid\n")
+    out_fh.write(f"        end\n")
+    out_fh.write(f"    end\n")
+    out_fh.write(f"\n")
+
+    # State transition combinational logic
+    out_fh.write(f"    always @(*) begin\n")
+    out_fh.write(f"        case (cs)\n")
+    for i in range(divisor):
+        one_transition  = ((i * 2) + 1) % divisor  # Transition to take if next bit in bitstream is a '1'
+        zero_transition = ((i * 2)    ) % divisor  # Transition to take if next bit in bitstream is a '0'
+        out_fh.write(f"            s_mod{i}:  ns = (in) ? s_mod{one_transition} : s_mod{zero_transition};\n")
+    out_fh.write(f"            default: ns = cs;\n")
+    out_fh.write(f"        endcase\n")
+    out_fh.write(f"    end\n")
+    out_fh.write(f"\n")
+
+    # Output wire assignments
+    out_fh.write(f"    assign out     = (cs == s_mod0);  // If in state 's_mod0', bitstream so far is divisible by {divisor}\n")
+    out_fh.write(f"    assign out_val = val_d1;          // Output delay is always exactly 1 clock\n")
+
+    # End module declaration
+    out_fh.write(f"endmodule : divisible_by_N\n")
+    out_fh.write(f"\n")
+
+# Execute 'main()' function
+if (__name__ == "__main__"):
+    main(sys.argv)
 
