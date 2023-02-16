@@ -48,10 +48,10 @@ Original color image taken using phone camera:<br/>
 ![Original color image taken using phone camera](images/pc_rear.jpg)
 
 Converted to 8-bit PGM format:<br/>
-![Converted to 8-bit PGM format](images/pc_rear.pgm)
+![Converted to 8-bit PGM format](images/pc_rear_pgm_as_jpg_for_readme.jpg)
 
 Output image with detected edges marked:<br/>
-![Output image with detected edges marked](images/pc_rear_edges.pgm)
+![Output image with detected edges marked](images/pc_rear_edges_pgm_as_jpg_for_readme.jpg)
 
 ## Limitations
 * Algorithm implementations are not the most optimal, concise, or efficient, because it is written with the intent to be used as a reference model and debugging aid for a Verilog module
