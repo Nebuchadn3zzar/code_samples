@@ -1,4 +1,4 @@
-# Image edge detector in Python
+# Computer vision edge detector in Python
 
 * [Overview](#Overview)
 * [Method](#Method)

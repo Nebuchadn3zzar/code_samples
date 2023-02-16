@@ -1,6 +1,5 @@
-# Streaming divisibility checker
+# Streaming divisibility checker RTL generator and UVM testbench
 
-## Table of contents
 * [Overview](#Overview)
 * [Structure](#Structure)
 * [Running](#Running)
