@@ -1,6 +1,7 @@
 # Streaming divisibility checker RTL generator and UVM testbench
 
 * [Overview](#Overview)
+* [State transition diagrams](#State-transition-diagrams)
 * [Structure](#Structure)
 * [Running](#Running)
 * [Other commands](#Other-commands)
@@ -14,6 +15,14 @@
    * Construct a UVM testbench around it
    * Write tests that verify the DUT and collect coverage
    * Wrap it all in a [Makefile](Makefile)
+
+## State transition diagrams
+
+Divisor of 3:<br/>
+![Divisor of 3](images/div_by_3_state_transition_diagram.jpg)
+
+Divisor of 5:<br/>
+![Divisor of 5](images/div_by_5_state_transition_diagram.jpg)
 
 ## Structure
 
