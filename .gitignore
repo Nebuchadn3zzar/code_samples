@@ -40,3 +40,8 @@
 ehthumbs.db
 Thumbs.db
 
+##############
+# Swap files #
+##############
+*.swp
+
