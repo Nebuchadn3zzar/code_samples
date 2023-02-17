@@ -1,26 +1,29 @@
 ################################################################################
 # Description:
-#    * Makefile for 'divisible by N' "IP" and "VIP"
+#    * Makefile for streaming divisibility checker RTL generator and UVM
+#      testbench
 #
 # Arguments:
-#    * DIV_BY=N        (for setting N to something other than the default of 3)
-#    * UVM_VER=uvm-X.Y (for using UVM 1.1 if UVM 1.2 is not available)
-#    * TEST=test_name  (for running a test other than the default of 'test_base')
-#    * SEED=S          (for simulating using a seed other than the default of 1)
+#    * DIV_BY=N:        Sets divisor N to a value other than default of 3
+#    * UVM_VER=uvm-X.Y: Uses UVM 1.1 if UVM 1.2 not available
+#    * TEST=test_name:  Runs a test other than default of 'test_base'
+#    * SEED=S:          Simulates using a seed other than default of 1
 #
 # Examples:
 #    * make help
 #         * Lists each available make target and its purpose
 #    * make DIV_BY=5
 #         * Generates a 'divisible by 5' finite state machine in Verilog
-#         * Writes a `define for 'DIV_BY' so that testbench knows what to expect from DUT
+#         * Writes a 'DIV_BY' `define to inform testbench of fixed integer
+#           divisor that DUT was generated for
 #         * Compiles design and testbench
 #         * Runs a simulation (default 'test_base') to test the generated FSM
 #         * Generates a coverage report in HTML format
 #    * make ip DIV_BY=3
 #         * Generates a 'divisible by 3' finite state machine in Verilog
 #    * make compile UVM_VER=uvm-1.1
-#         * Compiles design and testbench using UVM 1.1 libraries instead of UVM 1.2
+#         * Compiles design and testbench using UVM 1.1 libraries instead of
+#           UVM 1.2
 #    * make sim TEST=test_mostly_divisible SEED=1234
 #         * Runs the test 'test_mostly_divisible' with a seed of 1234
 #
@@ -47,15 +50,15 @@ RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 # Collection of human-friendly aliases for actual files and actions
 ################################################################################
 
-# Target: all     - [Default] Makes both "IP" & "VIP", compiles design & testbench, runs sim, generates coverage report
+# Target: all     - [Default] Makes and compiles "IP" and "VIP", runs sim, generates coverage report
 .PHONY: all
 all: ip vip compile sim cov
 
-# Target: ip      - Generates a 'divisible by N' finite state machine in Verilog, N being value of 'DIV_BY' macro
+# Target: ip      - Generates a divisibility checker FSM for fixed integer divisor N in Verilog
 .PHONY: ip
 ip: $(OUT_VERILOG_FILE)
 
-# Target: vip     - Writes a `define for 'DIV_BY' so that testbench knows what to expect from the DUT
+# Target: vip     - Writes a 'DIV_BY' `define to inform testbench of divisor that DUT was generated for
 .PHONY: vip
 vip: $(OUT_TB_DEFINE_FILE)
 
@@ -82,7 +85,7 @@ $(OUT_VERILOG_FILE): $(GEN_FSM_SCRIPT)
 
 # Testbench files
 $(OUT_TB_DEFINE_FILE):
-	echo "\`define DIV_BY $(DIV_BY)  // DUT is a 'divisible by N' FSM; \`DIV_BY = N" > $(OUT_TB_DEFINE_FILE)
+	echo "\`define DIV_BY $(DIV_BY)  // Integer divisor that DUT was generated for" > $(OUT_TB_DEFINE_FILE)
 
 # Simulator executable
 simv: $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE)
@@ -106,8 +109,8 @@ gen_cov_report:
 # Target: clean   - Removes all generated files for starting over
 .PHONY: clean
 clean:
-	-rm -rf $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd novas.* verdi* \
-   urgReport ucli.key
+	-rm -rf $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd \
+    novas.* verdi* urgReport ucli.key
 
 # Target: help    - Lists each available make target and its purpose
 .PHONY: help

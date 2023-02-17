@@ -1,6 +1,6 @@
 initial begin
-   $dumpfile("waves.vcd");
-   $dumpvars();
-   $dumpon;
+    $dumpfile("waves.vcd");
+    $dumpvars();
+    $dumpon;
 end
 
