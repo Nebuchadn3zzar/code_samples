@@ -149,7 +149,8 @@ class EdgeDetectLib:
 
     def convert_np_arr_to_pgm(self, np_arr, out_img_name):
         """
-        Convert given NumPy array to an image in PGM format.
+        Open output file handle and convert given NumPy array to an image " \
+        in PGM format.
         """
 
         self.log.info("Opening output file handle and converting NumPy array "
@@ -321,7 +322,7 @@ def main(argv):
         help="Desired name of output image file with detected edges marked",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v", "--verbose",  # Optional argument
         action="store_true",
         help="Enables verbose logging to facilitate debugging",
     )
@@ -342,7 +343,7 @@ def main(argv):
     # Instantiate image edge detection library class
     edge_detect_lib = EdgeDetectLib(log.getLogger())
 
-    # Open input file handle and convert input image to NumPy array
+    # Convert input PGM image to NumPy array
     in_np_arr = edge_detect_lib.convert_pgm_to_np_arr(args.in_img_name)
 
     # Apply Laplacian second derivative approximation kernel
@@ -364,7 +365,7 @@ def main(argv):
     # final edge pixel map
     arr_rect_clipped = edge_detect_lib.rectify_and_clip(arr_edge_trk)
 
-    # Convert output NumPy array to output image
+    # Convert output NumPy array to PGM image
     edge_detect_lib.convert_np_arr_to_pgm(arr_rect_clipped, args.out_img_name)
 
     # Exit
