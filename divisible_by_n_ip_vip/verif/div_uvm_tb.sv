@@ -26,7 +26,7 @@
 //    * seq_lib.sv
 //
 // Limitations:
-//    * Does not use RAL, since DUT has no registers
+//    * Does not exercise register bus interface
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -43,8 +43,12 @@ import uvm_pkg::*;
 interface div_if();
     logic clk;
     logic rst_n;
+
+    // Inputs of divisibility checker module
     logic bitstream;
     logic bitstream_vld;
+
+    // Outputs of divisibility checker module
     logic divisible;
     logic result_vld;
 endinterface : div_if
@@ -65,7 +69,7 @@ module tb();
     assign tb_div_if.clk = clk;
 
     // DUT
-    divisible_by_N top (
+    top dut_top (
         .clk     (clk),
         .rst_n   (tb_div_if.rst_n),
         .in      (tb_div_if.bitstream),
