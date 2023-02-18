@@ -2,12 +2,13 @@
 
 ################################################################################
 # Description:
-#    * Generates a Verilog module that takes a bitstream as input, and outputs
-#      whether the bitstream thus far is divisible by a fixed integer divisor N
+#    * Generates a streaming divisibility checker Verilog module that takes a
+#      bitstream as input, and outputs whether the bitstream thus far is
+#      divisible by a fixed integer divisor N
 #
 # Output:
 #    * A file, named according to the 'out_file_name' positional argument, that
-#      contains a 'divisible by N' Verilog module
+#      contains a 'divisible_by_N' Verilog module
 #    * Prints to standard output whether the script succeeded
 #
 # Examples:
@@ -98,7 +99,18 @@ class DivCheckerGenLib:
 
         # Module declaration
         out_fh.write(f"// \"Divisible by {self.divisor}\" finite state machine\n")
-        out_fh.write(f"module divisible_by_N(clk, rst_n, in, in_vld, out, out_vld);\n")
+        out_fh.write(f"module divisible_by_N(\n")
+        out_fh.write(f"    input clk,\n")
+        out_fh.write(f"    input rst_n,\n")
+        out_fh.write(f"\n")
+        out_fh.write(f"    // Inputs of divisibility checker\n")
+        out_fh.write(f"    input in,\n")
+        out_fh.write(f"    input in_vld,\n")
+        out_fh.write(f"\n")
+        out_fh.write(f"    // Outputs of divisibility checker\n")
+        out_fh.write(f"    output out,\n")
+        out_fh.write(f"    output out_vld\n")
+        out_fh.write(f");\n")
 
         # State enumerations
         out_fh.write(f"    // State enumerations\n")
@@ -108,11 +120,8 @@ class DivCheckerGenLib:
             out_fh.write(f"    localparam s_mod{i} = {num_state_bits}'b{i_bin_padded};\n")
         out_fh.write(f"\n")
 
-        # Input, output, wire, reg declarations
-        out_fh.write(f"    // Input, output, wire, reg declarations\n")
-        out_fh.write(f"    input wire clk, rst_n, in, in_vld;\n")
-        out_fh.write(f"    output wire out, out_vld;\n")
-        out_fh.write(f"\n")
+        # Wire and reg declarations
+        out_fh.write(f"    // Wire and reg declarations\n")
         out_fh.write(f"    reg [{num_state_bits - 1}:0] cs, ns;\n")
         out_fh.write(f"    reg vld_d1;  // Input valid signal, but delayed by 1 clock\n")
         out_fh.write(f"\n")
