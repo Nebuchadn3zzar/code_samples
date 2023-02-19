@@ -1,4 +1,6 @@
 ################################################################################
+# Author: Will Chen
+#
 # Description:
 #    * Makefile for streaming divisibility checker RTL generator and UVM
 #      testbench

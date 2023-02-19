@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 ################################################################################
+# Author: Will Chen
+#
 # Description:
 #    * Generates a streaming divisibility checker Verilog module that takes a
 #      bitstream as input, and outputs whether the bitstream thus far is

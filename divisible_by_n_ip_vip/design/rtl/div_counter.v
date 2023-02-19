@@ -1,4 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
+// Author: Will Chen
+//
 // Description:
 //    * Module that counts the number of times that a positive and valid
 //      'divisible' result was encountered

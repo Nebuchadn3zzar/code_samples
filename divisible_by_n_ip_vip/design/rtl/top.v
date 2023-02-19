@@ -1,4 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
+// Author: Will Chen
+//
 // Description:
 //    * Top RTL module that instantiates the following modules:
 //       * divisible_by_N: Takes a bitstream as input, and outputs whether the
