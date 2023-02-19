@@ -2,7 +2,7 @@
 // Author: Will Chen
 //
 // Description:
-//    * Collection of UVM tests for validating streaming divisibility checker
+//    * Library of UVM tests for validating streaming divisibility checker
 ////////////////////////////////////////////////////////////////////////////////
 
 

@@ -40,5 +40,5 @@ import uvm_pkg::*;
 `include "seq_lib.sv"          // Library of sequences executed by tests
 
 // Test library
-`include "test_collection.sv"
+`include "test_lib.sv"
 
