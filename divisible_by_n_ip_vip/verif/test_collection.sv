@@ -1,19 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Description:
-//    * Collection of UVM tests for streaming divisibility checker finite state
-//      machine
+// Author: Will Chen
 //
-// Tests:
-//    * test_base
-//       * Sends stimulus whose values should cover an even distribution of
-//         possible values that can fit within bitstreams of length
-//         `MAX_STREAM_LEN
-//    * test_mostly_divisible
-//       * Sends mostly stimulus whose values are evenly divisible by N
+// Description:
+//    * Collection of UVM tests for validating streaming divisibility checker
 ////////////////////////////////////////////////////////////////////////////////
 
 
-// test_base.sv
+// Sends stimulus whose values should cover an even distribution of possible
+// values that can fit within bitstreams of length `MAX_STREAM_LEN
 class test_base extends uvm_test;
     // Environment
     div_env env;
@@ -35,6 +29,8 @@ class test_base extends uvm_test;
     endfunction : new
 
     virtual function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         // Construct environment using factory
         env = div_env::type_id::create("env", this);
 
@@ -89,7 +85,7 @@ class test_base extends uvm_test;
     endtask : shutdown_phase
 endclass : test_base
 
-// test_mostly_divisible.sv
+// Sends stimulus whose values are mostly evenly divisible by N, rather than evenly distributed
 class test_mostly_divisible extends test_base;
     `uvm_component_utils(test_mostly_divisible);  // Register component with factory
 
