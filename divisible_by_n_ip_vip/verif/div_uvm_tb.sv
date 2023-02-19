@@ -22,7 +22,7 @@
 //    * div_ref_model.sv
 //    * div_scoreboard.sv
 //    * div_cov.sv
-//    * my_env.sv
+//    * div_env.sv
 //    * seq_lib.sv
 //
 // Limitations:
@@ -483,8 +483,8 @@ class div_cov extends uvm_component;
     endfunction : write_result
 endclass
 
-// my_env.sv
-class my_env extends uvm_env;
+// div_env.sv
+class div_env extends uvm_env;
     // Agents
     div_agent agt;
 
@@ -496,7 +496,7 @@ class my_env extends uvm_env;
     div_scoreboard sb;
     div_cov        cov_comp;
 
-    `uvm_component_utils(my_env);  // Register component with factory
+    `uvm_component_utils(div_env);  // Register component with factory
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -528,7 +528,7 @@ class my_env extends uvm_env;
         agt.stim_analysis_port.connect(cov_comp.stim_export);       // Stimulus to coverage component
         agt.result_analysis_port.connect(cov_comp.result_export);   // Observed results to coverage
     endfunction : connect_phase
-endclass : my_env
+endclass : div_env
 
 // seq_lib.sv
 class div_seq extends uvm_sequence #(div_packet);

@@ -16,7 +16,7 @@
 // test_base.sv
 class test_base extends uvm_test;
     // Environment
-    my_env env;
+    div_env env;
 
     // Sequences
     rand div_seq seq;
@@ -36,7 +36,7 @@ class test_base extends uvm_test;
 
     virtual function void build_phase(uvm_phase phase);
         // Construct environment using factory
-        env = my_env::type_id::create("env", this);
+        env = div_env::type_id::create("env", this);
 
         // Construct sequence using factory
         seq = div_seq::type_id::create("seq");  // No 'parent'; sequence is object, not component
