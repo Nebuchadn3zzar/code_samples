@@ -34,16 +34,20 @@
 ################################################################################
 
 
-GEN_FSM_SCRIPT     = design/gen_divisible_by_N_fsm.py
+# Constants
 DIV_BY             = 3  # Default value; meant to be overridden by user (i.e. 'make DIV_BY=5')
-OUT_VERILOG_FILE   = design/rtl/divisible_by_N.v
+GEN_FSM_SCRIPT     = design/gen_divisible_by_N_fsm.py
+OUT_RTL_FSM_FILE   = design/rtl/divisible_by_N.v
 OUT_TB_DEFINE_FILE = verif/div_by_define.svh
-TB_FILE            = verif/div_uvm_tb.sv
+RTL_DIR            = design/rtl
+RTL_SOURCES        = $(RTL_DIR)/top.v $(RTL_DIR)/divisible_by_N.v $(RTL_DIR)/div_counter.v
+TB_INCL_FILE       = verif/div_uvm_tb.svh
 
+# Compile/run constants
 TEST         = test_base
 UVM_DEFINES  = UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
 UVM_VER      = uvm-1.2
-COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(OUT_VERILOG_FILE) $(TB_FILE)
+COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(RTL_SOURCES) $(TB_INCL_FILE)
 SEED         = 1
 RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
@@ -58,7 +62,7 @@ all: ip vip compile sim cov
 
 # Target: ip      - Generates a divisibility checker FSM for fixed integer divisor N in Verilog
 .PHONY: ip
-ip: $(OUT_VERILOG_FILE)
+ip: $(OUT_RTL_FSM_FILE)
 
 # Target: vip     - Writes a 'DIV_BY' `define to inform testbench of divisor that DUT was generated for
 .PHONY: vip
@@ -82,15 +86,15 @@ cov: gen_cov_report
 ################################################################################
 
 # Design files
-$(OUT_VERILOG_FILE): $(GEN_FSM_SCRIPT)
-	python $(GEN_FSM_SCRIPT) $(DIV_BY) $(OUT_VERILOG_FILE)
+$(OUT_RTL_FSM_FILE): $(GEN_FSM_SCRIPT)
+	python $(GEN_FSM_SCRIPT) $(DIV_BY) $(OUT_RTL_FSM_FILE)
 
 # Testbench files
 $(OUT_TB_DEFINE_FILE):
 	echo "\`define DIV_BY $(DIV_BY)  // Integer divisor that DUT was generated for" > $(OUT_TB_DEFINE_FILE)
 
 # Simulator executable
-simv: $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE)
+simv: $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE)
 	vcs $(COMPILE_ARGS)
 
 # Run simulation
@@ -111,7 +115,7 @@ gen_cov_report:
 # Target: clean   - Removes all generated files for starting over
 .PHONY: clean
 clean:
-	-rm -rf $(OUT_VERILOG_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd \
+	-rm -rf $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd \
     novas.* verdi* urgReport ucli.key
 
 # Target: help    - Lists each available make target and its purpose
@@ -122,11 +126,13 @@ help:
 # Target: debug   - Prints all macros and their values, for debugging purposes
 .PHONY: debug
 debug:
-	@echo "GEN_FSM_SCRIPT     = $(GEN_FSM_SCRIPT)"
 	@echo "DIV_BY             = $(DIV_BY)"
-	@echo "OUT_VERILOG_FILE   = $(OUT_VERILOG_FILE)"
+	@echo "GEN_FSM_SCRIPT     = $(GEN_FSM_SCRIPT)"
+	@echo "OUT_RTL_FSM_FILE   = $(OUT_RTL_FSM_FILE)"
 	@echo "OUT_TB_DEFINE_FILE = $(OUT_TB_DEFINE_FILE)"
-	@echo "TB_FILE            = $(TB_FILE)"
+	@echo "RTL_DIR            = $(RTL_DIR)"
+	@echo "RTL_SOURCES        = $(RTL_SOURCES)"
+	@echo "TB_INCL_FILE       = $(TB_INCL_FILE)"
 	@echo "TEST               = $(TEST)"
 	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "UVM_VER            = $(UVM_VER)"
