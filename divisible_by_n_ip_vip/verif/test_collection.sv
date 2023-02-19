@@ -13,7 +13,8 @@ class test_base extends uvm_test;
     div_env env;
 
     // Sequences
-    rand div_seq seq;
+    rand div_seq         seq;
+    rand counter_reg_seq reg_seq;
 
     rand int unsigned num_values;
 
@@ -35,7 +36,8 @@ class test_base extends uvm_test;
         env = div_env::type_id::create("env", this);
 
         // Construct sequence using factory
-        seq = div_seq::type_id::create("seq");  // No 'parent'; sequence is object, not component
+        seq     = div_seq::type_id::create("seq");
+        reg_seq = counter_reg_seq::type_id::create("reg_seq");
     endfunction : build_phase
 
     virtual task main_phase(uvm_phase phase);
@@ -55,6 +57,11 @@ class test_base extends uvm_test;
             seq.randomize();
             seq.start(env.agt.sqr);
         end
+
+        // Read final count of number of times that a positive and valid 'divisible' result was
+        // encountered, via register abstraction layer
+        `uvm_info("TEST", "Reading count of divisible values encountered...", UVM_MEDIUM);
+        reg_seq.start(env.reg_agt.sqr);
 
         phase.drop_objection(this);
     endtask : main_phase

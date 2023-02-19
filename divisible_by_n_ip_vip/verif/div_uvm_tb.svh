@@ -19,18 +19,25 @@ import uvm_pkg::*;
 `include "div_tb_defines.svh"
 
 // Testbench source files
-`include "div_if.sv"          // Interface between divisibility checker module and testbench
-`include "tb.sv"              // Top module of UVM testbench
-`include "div_packet.sv"      // Sequence item classes for divisibility checker module
-`include "div_sequencer.sv"   // Sequencer component of divisibility checker agent
-`include "div_driver.sv"      // Driver component of divisibility checker agent
-`include "div_monitor.sv"     // Monitor component of divisibility checker agent
-`include "div_agent.sv"       // Agent component of divisibility checker module
-`include "div_ref_model.sv"   // Reference model of divisibility checker module
-`include "div_scoreboard.sv"  // Scoreboard component of divisibility checker module
-`include "div_cov.sv"         // Coverage model and coverage collection component
-`include "div_env.sv"         // Environment component of UVM testbench
-`include "seq_lib.sv"         // Library of sequences executed by tests
+`include "div_if.sv"           // Interface between divisibility checker module and testbench
+`include "reg_if.sv"           // Interface between register bus and testbench
+`include "tb.sv"               // Top module of UVM testbench
+`include "div_packet.sv"       // Sequence item classes for divisibility checker module
+`include "div_sequencer.sv"    // Sequencer component of divisibility checker agent
+`include "div_driver.sv"       // Driver component of divisibility checker agent
+`include "div_monitor.sv"      // Monitor component of divisibility checker agent
+`include "div_agent.sv"        // Agent component of divisibility checker module
+`include "div_ref_model.sv"    // Reference model of divisibility checker module
+`include "div_scoreboard.sv"   // Scoreboard component of divisibility checker module
+`include "div_cov.sv"          // Coverage model and coverage collection component
+`include "reg_rw_item.sv"      // Sequence item class for register bus interface
+`include "reg_bus_adapter.sv"  // Adapter between UVM register model and register bus
+`include "reg_sequencer.sv"    // Sequencer component of register bus interface agent
+`include "reg_driver.sv"       // Driver component of register bus interface agent
+`include "reg_agent.sv"        // Agent component of register bus interface
+`include "reg_model.sv"        // Register model of streaming divisibility checker design
+`include "div_env.sv"          // Environment component of UVM testbench
+`include "seq_lib.sv"          // Library of sequences executed by tests
 
 // Test library
 `include "test_collection.sv"
