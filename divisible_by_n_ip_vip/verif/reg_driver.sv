@@ -42,6 +42,8 @@ class reg_driver extends uvm_driver #(reg_rw_item);
             @(posedge reg_vif.clk);
             tr.data = reg_vif.reg_rd_data;  // Sample read data
         end
+        reg_vif.reg_rd_en <= 0;  // De-assert read enable
+        reg_vif.reg_wr_en <= 0;  // De-assert write enable
         `uvm_info("DRV",
                   $sformatf("Drove %s register transaction with address 0x%0h, data 0x%0h",
                             tr.kind.name, tr.addr, tr.data),
