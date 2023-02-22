@@ -30,21 +30,22 @@ class reg_driver extends uvm_driver #(reg_rw_item);
     endtask : run_phase
 
     virtual task send_item(reg_rw_item tr);
-        `uvm_info("DRV",
-                  $sformatf("Driving register transaction kind %0d, address 0x%0h, data 0x%0h...",
-                            tr.kind, tr.addr, tr.data),
-                  UVM_MEDIUM);
         @(posedge reg_vif.clk);
         reg_vif.reg_rd_en <= (tr.kind == UVM_READ);
         reg_vif.reg_wr_en <= (tr.kind == UVM_WRITE);
         reg_vif.reg_addr  <= tr.addr;
         if (tr.kind == UVM_WRITE) begin
             reg_vif.reg_wr_data <= tr.data;  // Drive write data
+            @(posedge reg_vif.clk);
         end
         else if (tr.kind == UVM_READ) begin
             @(posedge reg_vif.clk);
             tr.data = reg_vif.reg_rd_data;  // Sample read data
         end
+        `uvm_info("DRV",
+                  $sformatf("Drove %s register transaction with address 0x%0h, data 0x%0h",
+                            tr.kind.name, tr.addr, tr.data),
+                  UVM_MEDIUM);
     endtask : send_item
 endclass : reg_driver
 

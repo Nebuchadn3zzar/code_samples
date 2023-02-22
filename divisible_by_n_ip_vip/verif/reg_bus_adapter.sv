@@ -21,8 +21,8 @@ class reg_bus_adapter extends uvm_reg_adapter;
         tr.addr = rw.addr;
         tr.data = rw.data;
         `uvm_info("REG2BUS",
-                  $sformatf("Converted to bus transaction kind %0d, address 0x%0h, data 0x%0h",
-                            tr.kind, tr.addr, tr.data),
+                  $sformatf("Converted to %s bus transaction with address 0x%0h, data 0x%0h",
+                            tr.kind.name, tr.addr, tr.data),
                   UVM_HIGH);
         return tr;
     endfunction : reg2bus
@@ -39,8 +39,8 @@ class reg_bus_adapter extends uvm_reg_adapter;
         rw.data = tr.data;
         rw.status = UVM_IS_OK;
         `uvm_info("BUS2REG",
-                  $sformatf("Converted to register transaction kind %0d, address 0x%0h, data 0x%0h",
-                            rw.kind, rw.addr, rw.data),
+                  $sformatf("Converted to %s register transaction with address 0x%0h, data 0x%0h",
+                            rw.kind.name, rw.addr, rw.data),
                   UVM_HIGH);
     endfunction : bus2reg
 endclass : reg_bus_adapter
