@@ -35,7 +35,7 @@ class test_base extends uvm_test;
         // Construct environment using factory
         env = div_env::type_id::create("env", this);
 
-        // Construct sequence using factory
+        // Construct sequences using factory
         seq     = div_seq::type_id::create("seq");
         reg_seq = counter_reg_seq::type_id::create("reg_seq");
     endfunction : build_phase
@@ -107,4 +107,53 @@ class test_mostly_divisible extends test_base;
         set_type_override_by_type(div_packet::get_type(), div_packet_mostly_divisible::get_type());
     endfunction : build_phase
 endclass : test_mostly_divisible
+
+// Runs all built-in UVM register functionality tests
+class test_reg_built_in extends uvm_test;
+    // Environment
+    div_env env;
+
+    // Sequences
+    rand uvm_reg_mem_built_in_seq reg_seq;
+
+    `uvm_component_utils(test_reg_built_in);  // Register component with factory
+
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction : new
+
+    virtual function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
+        // Construct environment using factory
+        env = div_env::type_id::create("env", this);
+
+        // Construct sequence using factory
+        reg_seq = uvm_reg_mem_built_in_seq::type_id::create("reg_seq");
+    endfunction : build_phase
+
+    virtual function void end_of_elaboration_phase(uvm_phase phase);
+        reg_block_counter reg_model;
+
+        // Retrieve register model handle from resource database
+        uvm_config_db#(reg_block_counter)::get(env.reg_agt.sqr, "", "reg_model", reg_model);
+
+        // Set register model that built-in register sequence is to test
+        reg_seq.model = reg_model;
+    endfunction : end_of_elaboration_phase
+
+    virtual task main_phase(uvm_phase phase);
+        super.main_phase(phase);
+
+        phase.raise_objection(this);
+
+        // Start sequence that contains all built-in register tests
+        `uvm_info("TEST",
+                  "Starting sequence that contains all built-in register tests...",
+                  UVM_MEDIUM);
+        reg_seq.start(env.reg_agt.sqr);
+
+        phase.drop_objection(this);
+    endtask : main_phase
+endclass : test_reg_built_in
 
