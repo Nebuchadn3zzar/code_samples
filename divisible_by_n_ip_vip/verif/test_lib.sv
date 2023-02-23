@@ -52,16 +52,33 @@ class test_base extends uvm_test;
                   UVM_MEDIUM);
 
         // Drive some random values
-        for (int i = 1; i <= num_values; i++) begin
+        for (int i = 1; i <= num_values; ++i) begin  // Each bitstream to test
+            // Reset counter in reference model of number of times a positive and valid 'divisible'
+            // result was encountered since last reset
+            env.ref_model.div_cnt = 0;
+
             `uvm_info("TEST", $sformatf("Driving value %0d of %0d...", i, num_values), UVM_MEDIUM);
             seq.randomize();
             seq.start(env.agt.sqr);
-        end
 
-        // Read final count of number of times that a positive and valid 'divisible' result was
-        // encountered, via register abstraction layer
-        `uvm_info("TEST", "Reading count of divisible values encountered...", UVM_MEDIUM);
-        reg_seq.start(env.reg_agt.sqr);
+            // Using register abstraction layer, read count of number of times that a positive and
+            // valid 'divisible' result was encountered since last reset, and check read value
+            // against reference model
+            // FIXME: Convert this check into a scoreboard or register model comparison
+            `uvm_info("TEST", "Reading count of divisible values encountered...", UVM_MEDIUM);
+            reg_seq.start(env.reg_agt.sqr);
+            if (reg_seq.data == env.ref_model.div_cnt) begin  // DUT matches reference model
+                `uvm_info("TEST",
+                          $sformatf("Read count of divisible values, %0d, matches expected",
+                                    reg_seq.data),
+                          UVM_LOW);
+            end
+            else begin  // Mismatch between DUT and reference model
+                `uvm_error("TEST",
+                           $sformatf("Expected count of divisible values to be %0d, but read %0d!",
+                                     env.ref_model.div_cnt, reg_seq.data));
+            end
+        end
 
         phase.drop_objection(this);
     endtask : main_phase
