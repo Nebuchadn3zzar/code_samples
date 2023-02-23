@@ -64,6 +64,8 @@ endclass : reg_seq_base
 // Register sequence for counter register block
 class counter_reg_seq extends uvm_reg_sequence #(reg_seq_base);
     reg_block_counter reg_model;
+    uvm_status_e      status;
+    uvm_reg_data_t    data;
 
     `uvm_object_utils(counter_reg_seq);  // Register object with factory
 
@@ -77,20 +79,29 @@ class counter_reg_seq extends uvm_reg_sequence #(reg_seq_base);
     endtask : pre_start
 
     virtual task body();
-        uvm_status_e   status;
-        uvm_reg_data_t data;
+        uvm_reg_data_t front_door_data;
+        uvm_reg_data_t back_door_data;
 
         // Front door
-        reg_model.div_cnt.read(status, data, UVM_FRONTDOOR, .parent(this));
+        reg_model.div_cnt.read(status, front_door_data, UVM_FRONTDOOR, .parent(this));
         `uvm_info("REG_SEQ",
-                  $sformatf("Read data 0x%0h from 'div_cnt' register via front door", data),
+                  $sformatf("Read data 0x%0h from 'div_cnt' register via front door",
+                            front_door_data),
                   UVM_MEDIUM);
 
         // Back door
-        reg_model.div_cnt.read(status, data, UVM_BACKDOOR, .parent(this));
+        reg_model.div_cnt.read(status, back_door_data, UVM_BACKDOOR, .parent(this));
         `uvm_info("REG_SEQ",
-                  $sformatf("Read data 0x%0h from 'div_cnt' register via back door", data),
+                  $sformatf("Read data 0x%0h from 'div_cnt' register via back door",
+                            back_door_data),
                   UVM_MEDIUM);
+        if (front_door_data != back_door_data) begin
+            `uvm_error("REG_SEQ",
+                       $sformatf("Front door read data 0x%0h does not match back door data 0x%0h!",
+                                 front_door_data, back_door_data));
+        end
+
+        data = front_door_data;  // "Return" data read via front door
     endtask : body
 endclass : counter_reg_seq
 
