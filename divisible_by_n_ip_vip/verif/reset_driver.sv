@@ -21,13 +21,13 @@ class reset_driver extends uvm_driver #(reset_txn);
         end
     endfunction : build_phase
 
-    virtual task run_phase(uvm_phase phase);  // FIXME: Move to reset phase
+    virtual task reset_phase(uvm_phase phase);
         forever begin
             seq_item_port.get_next_item(req);  // Blocking 'get'
             send_item(req);  // Drive transaction into DUT
             seq_item_port.item_done();  // Indicate to sequence that driver has completed processing
         end
-    endtask : run_phase
+    endtask : reset_phase
 
     virtual task send_item(reset_txn txn);
         // Initially de-assert
