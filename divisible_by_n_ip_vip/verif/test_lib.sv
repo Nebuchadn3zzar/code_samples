@@ -167,6 +167,8 @@ class test_reg_built_in extends uvm_test;
     virtual function void end_of_elaboration_phase(uvm_phase phase);
         reg_block_counter reg_model;
 
+        super.end_of_elaboration_phase(phase);
+
         // Retrieve register model handle from resource database
         if (!uvm_config_db#(reg_block_counter)::get(env.reg_agt.sqr, "", "reg_model", reg_model)) begin
             `uvm_fatal("TEST", "Failed to retrieve 'reg_model' handle from resource database!");
