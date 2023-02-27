@@ -40,6 +40,7 @@ class div_cov extends uvm_component;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
+
         stim_export   = new("stim_export", this);
         result_export = new("result_export", this);
     endfunction : new

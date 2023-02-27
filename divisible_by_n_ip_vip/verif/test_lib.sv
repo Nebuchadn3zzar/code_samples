@@ -63,7 +63,7 @@ class test_base extends uvm_test;
             if (!seq.randomize()) begin
                 `uvm_fatal("TEST", "Failed to randomise 'seq'!");
             end
-            seq.start(env.agt.sqr);
+            seq.start(env.div_agt.sqr);
 
             // Using register abstraction layer, read count of number of times that a positive and
             // valid 'divisible' result was encountered since last reset, and check read value
@@ -89,13 +89,13 @@ class test_base extends uvm_test;
 
     virtual task shutdown_phase(uvm_phase phase);
         // Wait for scoreboard to be empty
-        if (env.sb.queue_empty.is_off()) begin  // Queue not yet empty
+        if (env.div_sb.queue_empty.is_off()) begin  // Queue not yet empty
             `uvm_info("TEST", "Shutdown phase: Waiting for scoreboard to empty...", UVM_MEDIUM);
             phase.raise_objection(this, "Waiting for scoreboard to empty...");
             fork
                 forever begin
-                    env.sb.queue_empty.wait_trigger();
-                    if (env.sb.queue_empty.is_on()) begin  // Queue is now empty
+                    env.div_sb.queue_empty.wait_trigger();
+                    if (env.div_sb.queue_empty.is_on()) begin  // Queue is now empty
                         `uvm_info("TEST", "Shutdown phase: Scoreboard is now empty", UVM_MEDIUM);
                         phase.drop_objection(this, "Scoreboard is now empty");
                     end
@@ -104,7 +104,7 @@ class test_base extends uvm_test;
                     int timeout_us = 20;
                     #(1us * timeout_us);
                     `uvm_fatal("TEST",
-                               $sformatf("Shutdown phase: Timed out after waiting %0d us for scoreboard to empty!",
+                               $sformatf("Timed out after waiting %0d us for scoreboard to empty!",
                                          timeout_us));
                 end
             join_any

@@ -8,8 +8,8 @@
 
 class div_agent extends uvm_agent;
     // Ports
-    uvm_analysis_port #(div_packet) stim_analysis_port;    // Pass-through port from monitor
-    uvm_analysis_port #(div_packet) result_analysis_port;  // Pass-through port from monitor
+    uvm_analysis_port #(div_packet) stim_ap;    // Pass-through port from monitor
+    uvm_analysis_port #(div_packet) result_ap;  // Pass-through port from monitor
 
     // Components
     div_sequencer sqr;
@@ -20,8 +20,9 @@ class div_agent extends uvm_agent;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
-        stim_analysis_port   = new("stim_analysis_port", this);
-        result_analysis_port = new("result_analysis_port", this);
+
+        stim_ap   = new("stim_ap", this);
+        result_ap = new("result_ap", this);
     endfunction : new
 
     virtual function void build_phase(uvm_phase phase);
@@ -37,9 +38,9 @@ class div_agent extends uvm_agent;
         super.connect_phase(phase);
 
         // Make connections
-        drv.seq_item_port.connect(sqr.seq_item_export);               // Sequencer to driver
-        mon.stim_analysis_port.connect(this.stim_analysis_port);      // Pass-through from monitor
-        mon.result_analysis_port.connect(this.result_analysis_port);  // Pass-through from monitor
+        drv.seq_item_port.connect(sqr.seq_item_export);  // Sequencer to driver
+        mon.stim_ap.connect(this.stim_ap);               // Pass-through from monitor
+        mon.result_ap.connect(this.result_ap);           // Pass-through from monitor
     endfunction : connect_phase
 endclass : div_agent
 

@@ -21,6 +21,7 @@ class div_scoreboard extends uvm_component;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
+
         expected_export = new("expected_export", this);
         observed_export = new("observed_export", this);
     endfunction : new

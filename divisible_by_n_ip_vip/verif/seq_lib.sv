@@ -13,6 +13,7 @@ class div_seq extends uvm_sequence #(div_packet);
 
     function new(string name="div_seq");
         super.new(name);
+
         `ifdef UVM_POST_VERSION_1_1
         set_automatic_phase_objection(1);  // Requires UVM 1.2 or later
         `endif  // UVM_POST_VERSION_1_1
@@ -42,6 +43,7 @@ class reg_seq_base extends uvm_sequence #(reg_rw_item);
 
     function new(string name="reg_seq_base");
         super.new(name);
+
         `ifdef UVM_POST_VERSION_1_1
         set_automatic_phase_objection(1);  // Requires UVM 1.2 or later
         `endif  // UVM_POST_VERSION_1_1
