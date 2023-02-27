@@ -15,6 +15,7 @@ class div_agent extends uvm_agent;
     div_sequencer sqr;
     div_driver    drv;
     div_monitor   mon;
+    div_cov       cov;
 
     `uvm_component_utils(div_agent);  // Register component with factory
 
@@ -32,6 +33,7 @@ class div_agent extends uvm_agent;
         sqr = div_sequencer::type_id::create("sqr", this);
         drv = div_driver::type_id::create("drv", this);
         mon = div_monitor::type_id::create("mon", this);
+        cov = div_cov::type_id::create("cov", this);
     endfunction : build_phase
 
     virtual function void connect_phase(uvm_phase phase);
@@ -39,6 +41,8 @@ class div_agent extends uvm_agent;
 
         // Make connections
         drv.seq_item_port.connect(sqr.seq_item_export);  // Sequencer to driver
+        mon.stim_ap.connect(cov.stim_export);            // Observed stimulus to coverage
+        mon.result_ap.connect(cov.result_export);        // Observed results to coverage
         mon.stim_ap.connect(this.stim_ap);               // Pass-through from monitor
         mon.result_ap.connect(this.result_ap);           // Pass-through from monitor
     endfunction : connect_phase

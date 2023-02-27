@@ -18,10 +18,9 @@ class div_env extends uvm_env;
     virtual div_if div_vif;
     virtual reg_if reg_vif;
 
-    // Reference model, scoreboard, and coverage components
+    // Reference model and scoreboard components
     div_ref_model  ref_model;
     div_scoreboard div_sb;
-    div_cov        cov_div;
 
     `uvm_component_utils(div_env);  // Register component with factory
 
@@ -46,7 +45,6 @@ class div_env extends uvm_env;
         reg_agt   = reg_agent::type_id::create("reg_agt", this);
         ref_model = div_ref_model::type_id::create("ref_model", this);
         div_sb    = div_scoreboard::type_id::create("div_sb", this);
-        cov_div   = div_cov::type_id::create("cov_div", this);
 
         // Instantiate register model, create address map, and pass register model handle to
         // sequencer of register agent
@@ -67,8 +65,6 @@ class div_env extends uvm_env;
         div_agt.stim_ap.connect(ref_model.analysis_export);       // Stimulus to reference model
         ref_model.analysis_port.connect(div_sb.expected_export);  // Reference model to scoreboard
         div_agt.result_ap.connect(div_sb.observed_export);        // Observed results to scoreboard
-        div_agt.stim_ap.connect(cov_div.stim_export);             // Stimulus to coverage
-        div_agt.result_ap.connect(cov_div.result_export);         // Observed results to coverage
 
         // Associate register transaction adapter with default map of register model
         reg_model.default_map.set_sequencer(reg_agt.sqr, reg_agt.adapter);
