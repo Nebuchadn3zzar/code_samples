@@ -8,8 +8,8 @@
 
 class div_scoreboard extends uvm_component;
     // Ports
-    `uvm_analysis_imp_decl(_expected);  // Define analysis imp class for 'expected' imp
-    `uvm_analysis_imp_decl(_observed);  // Define analysis imp class for 'observed' imp
+    `uvm_analysis_imp_decl(_expected)  // Define analysis imp class for 'expected' imp
+    `uvm_analysis_imp_decl(_observed)  // Define analysis imp class for 'observed' imp
     uvm_analysis_imp_expected #(div_packet, div_scoreboard) expected_export;
     uvm_analysis_imp_observed #(div_packet, div_scoreboard) observed_export;
 

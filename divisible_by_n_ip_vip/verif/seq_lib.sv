@@ -75,7 +75,9 @@ class counter_reg_seq extends uvm_reg_sequence #(reg_seq_base);
 
     task pre_start();
         // Retrieve register model handle from resource database
-        uvm_config_db#(reg_block_counter)::get(get_sequencer(), "", "reg_model", reg_model);
+        if (!uvm_config_db#(reg_block_counter)::get(get_sequencer(), "", "reg_model", reg_model)) begin
+            `uvm_fatal("REG_SEQ", "Failed to retrieve 'reg_model' handle from resource database!");
+        end
     endtask : pre_start
 
     virtual task body();

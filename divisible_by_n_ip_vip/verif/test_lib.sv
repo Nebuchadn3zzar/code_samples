@@ -46,7 +46,9 @@ class test_base extends uvm_test;
         phase.raise_objection(this);
 
         // Randomise number of values to send
-        randomize(num_values);
+        if (!randomize(num_values)) begin
+            `uvm_fatal("TEST", "Failed to randomise 'num_values'!");
+        end
         `uvm_info("TEST",
                   $sformatf("Randomised number of values to send to %0d", num_values),
                   UVM_MEDIUM);
@@ -58,7 +60,9 @@ class test_base extends uvm_test;
             env.ref_model.div_cnt = 0;
 
             `uvm_info("TEST", $sformatf("Driving value %0d of %0d...", i, num_values), UVM_MEDIUM);
-            seq.randomize();
+            if (!seq.randomize()) begin
+                `uvm_fatal("TEST", "Failed to randomise 'seq'!");
+            end
             seq.start(env.agt.sqr);
 
             // Using register abstraction layer, read count of number of times that a positive and
@@ -153,7 +157,9 @@ class test_reg_built_in extends uvm_test;
         reg_block_counter reg_model;
 
         // Retrieve register model handle from resource database
-        uvm_config_db#(reg_block_counter)::get(env.reg_agt.sqr, "", "reg_model", reg_model);
+        if (!uvm_config_db#(reg_block_counter)::get(env.reg_agt.sqr, "", "reg_model", reg_model)) begin
+            `uvm_fatal("TEST", "Failed to retrieve 'reg_model' handle from resource database!");
+        end
 
         // Set register model that built-in register sequence is to test
         reg_seq.model = reg_model;

@@ -28,8 +28,8 @@ endgroup
 // Coverage collection component
 class div_cov extends uvm_component;
     // Ports
-    `uvm_analysis_imp_decl(_stim);    // Define analysis imp class for 'stim' imp
-    `uvm_analysis_imp_decl(_result);  // Define analysis imp class for 'result' imp
+    `uvm_analysis_imp_decl(_stim)    // Define analysis imp class for 'stim' imp
+    `uvm_analysis_imp_decl(_result)  // Define analysis imp class for 'result' imp
     uvm_analysis_imp_stim   #(div_packet, div_cov) stim_export;
     uvm_analysis_imp_result #(div_packet, div_cov) result_export;
 
