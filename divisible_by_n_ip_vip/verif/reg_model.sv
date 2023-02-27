@@ -25,7 +25,7 @@ class reg_div_cnt extends uvm_reg;
             .size                    (16),
             .lsb_pos                 (8'h00),
             .access                  ("RW"),
-            .volatile                (0),
+            .volatile                (0),  // Specified as non-volatile to enable mirror checking
             .reset                   (16'h0000),
             .has_reset               (1),
             .is_rand                 (0),

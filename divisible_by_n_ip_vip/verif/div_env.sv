@@ -23,6 +23,11 @@ class div_env extends uvm_env;
     div_ref_model  ref_model;
     div_scoreboard div_sb;
 
+    // Predictors that update register model mirror of counter register in response to observed
+    // transactions on physical busses
+    rst2reg_predict rst2reg;  // Derived class because 'write()' function is overridden
+    div2reg_predict div2reg;  // Derived class because 'write()' function is overridden
+
     `uvm_component_utils(div_env);  // Register component with factory
 
     function new(string name, uvm_component parent);
@@ -47,6 +52,8 @@ class div_env extends uvm_env;
         reg_agt   = reg_agent::type_id::create("reg_agt", this);
         ref_model = div_ref_model::type_id::create("ref_model", this);
         div_sb    = div_scoreboard::type_id::create("div_sb", this);
+        rst2reg   = rst2reg_predict::type_id::create("rst2reg", this);
+        div2reg   = div2reg_predict::type_id::create("div2reg", this);
 
         // Instantiate register model, create address map, and pass register model handle to
         // sequencer of register agent
@@ -64,15 +71,22 @@ class div_env extends uvm_env;
         super.connect_phase(phase);
 
         // Make connections
+        rst_agt.ap.connect(rst2reg.bus_in);                       // Observed resets to predictor
         div_agt.stim_ap.connect(ref_model.analysis_export);       // Stimulus to reference model
         ref_model.analysis_port.connect(div_sb.expected_export);  // Reference model to scoreboard
         div_agt.result_ap.connect(div_sb.observed_export);        // Observed results to scoreboard
+        div_agt.result_ap.connect(div2reg.bus_in);                // Observed results to predictor
 
         // Associate register transaction adapter with default map of register model
         reg_model.default_map.set_sequencer(reg_agt.sqr, reg_agt.adapter);
 
         // Enable automatic register model mirror prediction upon register reads and writes
         reg_model.default_map.set_auto_predict(1);
+
+        // Setup necessary for direct updating of mirror of counter register in response to
+        // observed reset application or observed positive and valid 'divisible' result
+        rst2reg.reg_model = reg_model;  // Pass handle to register model of counter block
+        div2reg.reg_model = reg_model;  // Pass handle to register model of counter block
     endfunction : connect_phase
 endclass : div_env
 

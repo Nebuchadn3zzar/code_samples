@@ -116,15 +116,17 @@ class counter_reg_seq extends uvm_reg_sequence #(reg_seq_base);
         uvm_reg_data_t front_door_data;
         uvm_reg_data_t back_door_data;
 
-        // Front door
-        reg_model.div_cnt.read(status, front_door_data, UVM_FRONTDOOR, .parent(this));
+        // Read via front door, checking read value against predicted mirror value
+        reg_model.div_cnt.mirror(status, UVM_CHECK, UVM_FRONTDOOR, .parent(this));
+        front_door_data = reg_model.div_cnt.get_mirrored_value();  // New mirrored value
         `uvm_info("REG_SEQ",
                   $sformatf("Read data 0x%0h from 'div_cnt' register via front door",
                             front_door_data),
                   UVM_MEDIUM);
 
-        // Back door
-        reg_model.div_cnt.read(status, back_door_data, UVM_BACKDOOR, .parent(this));
+        // Read via back door, checking read value against predicted mirror value
+        reg_model.div_cnt.mirror(status, UVM_CHECK, UVM_BACKDOOR, .parent(this));
+        back_door_data = reg_model.div_cnt.get_mirrored_value();  // New mirrored value
         `uvm_info("REG_SEQ",
                   $sformatf("Read data 0x%0h from 'div_cnt' register via back door",
                             back_door_data),

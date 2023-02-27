@@ -42,6 +42,7 @@ import uvm_pkg::*;
 `include "reg_driver.sv"       // Driver component of register bus interface agent
 `include "reg_agent.sv"        // Agent component of register bus interface
 `include "reg_model.sv"        // Register model of streaming divisibility checker design
+`include "reg_predictors.sv"   // Predictors that update register mirrors upon observed transactions
 `include "div_env.sv"          // Environment component of UVM testbench
 `include "seq_lib.sv"          // Library of sequences executed by tests
 

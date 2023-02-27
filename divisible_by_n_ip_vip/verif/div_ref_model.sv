@@ -11,20 +11,14 @@ class div_ref_model extends uvm_component;
     uvm_analysis_imp  #(div_packet, div_ref_model) analysis_export;
     uvm_analysis_port #(div_packet)                analysis_port;
 
-    // DUT state
-    int div_cnt;  // Number of times a positive and valid 'divisible' result was encountered
-
     string hex_fmt_str = $sformatf("0x%%0%0dh", `HEX_DGTS);  // Format string for printing in hex
 
     `uvm_component_utils(div_ref_model);  // Register component with factory
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
-
         analysis_export = new("analysis_export", this);
         analysis_port   = new("analysis_port", this);
-
-        div_cnt = 0;  // Initial value
     endfunction : new
 
     // Predicts an expected packet from an observed bitstream
@@ -32,12 +26,9 @@ class div_ref_model extends uvm_component;
         div_packet ap = div_packet::type_id::create("ap", this);
         ap.data      = stim.data;
         ap.divisible = ((stim.data % `DIV_BY) == 0);
-        if (ap.divisible) begin
-            ++div_cnt;  // Increment number of times a positive 'divisible' result was encountered
-        end
         `uvm_info("REF_MDL",
-                  $sformatf("Given stimulus packet with data %s, predicted result %b, div_cnt %0d",
-                            $sformatf(hex_fmt_str, ap.data), ap.divisible, div_cnt),
+                  $sformatf("Given stimulus packet with data %s, predicted result %b",
+                            $sformatf(hex_fmt_str, ap.data), ap.divisible),
                   UVM_MEDIUM);
         analysis_port.write(ap);
     endfunction : write
