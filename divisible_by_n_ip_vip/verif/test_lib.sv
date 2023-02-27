@@ -13,6 +13,7 @@ class test_base extends uvm_test;
     div_env env;
 
     // Sequences
+    rand reset_seq       rst_seq;
     rand div_seq         seq;
     rand counter_reg_seq reg_seq;
 
@@ -36,6 +37,7 @@ class test_base extends uvm_test;
         env = div_env::type_id::create("env", this);
 
         // Construct sequences using factory
+        rst_seq = reset_seq::type_id::create("rst_seq");
         seq     = div_seq::type_id::create("seq");
         reg_seq = counter_reg_seq::type_id::create("reg_seq");
     endfunction : build_phase
@@ -55,6 +57,15 @@ class test_base extends uvm_test;
 
         // Drive some random values
         for (int i = 1; i <= num_values; ++i) begin  // Each bitstream to test
+            // Apply reset
+            `uvm_info("TEST",
+                      $sformatf("Applying reset %0d of %0d...", i, num_values),
+                      UVM_MEDIUM);
+            if (!rst_seq.randomize()) begin
+                `uvm_fatal("TEST", "Failed to randomise 'rst_seq'!");
+            end
+            rst_seq.start(env.rst_agt.sqr);
+
             // Reset counter in reference model of number of times a positive and valid 'divisible'
             // result was encountered since last reset
             env.ref_model.div_cnt = 0;

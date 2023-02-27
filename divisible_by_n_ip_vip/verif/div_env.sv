@@ -8,8 +8,9 @@
 
 class div_env extends uvm_env;
     // Agents
-    div_agent div_agt;
-    reg_agent reg_agt;
+    reset_agent rst_agt;
+    div_agent   div_agt;
+    reg_agent   reg_agt;
 
     // Register model
     reg_block_counter reg_model;
@@ -41,6 +42,7 @@ class div_env extends uvm_env;
         uvm_config_db#(virtual reg_if)::set(this, "*", "reg_vif", reg_vif);
 
         // Construct components using factory
+        rst_agt   = reset_agent::type_id::create("rst_agt", this);
         div_agt   = div_agent::type_id::create("div_agt", this);
         reg_agt   = reg_agent::type_id::create("reg_agt", this);
         ref_model = div_ref_model::type_id::create("ref_model", this);
