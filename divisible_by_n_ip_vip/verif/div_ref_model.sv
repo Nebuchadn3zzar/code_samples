@@ -17,20 +17,21 @@ class div_ref_model extends uvm_component;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
+
         analysis_export = new("analysis_export", this);
         analysis_port   = new("analysis_port", this);
     endfunction : new
 
     // Predicts an expected packet from an observed bitstream
     virtual function void write(div_packet stim);
-        div_packet ap = div_packet::type_id::create("ap", this);
-        ap.data      = stim.data;
-        ap.divisible = ((stim.data % `DIV_BY) == 0);
+        div_packet res_pkt = div_packet::type_id::create("res_pkt", this);
+        res_pkt.data      = stim.data;
+        res_pkt.divisible = ((stim.data % `DIV_BY) == 0);
         `uvm_info("REF_MDL",
                   $sformatf("Given stimulus packet with data %s, predicted result %b",
-                            $sformatf(hex_fmt_str, ap.data), ap.divisible),
+                            $sformatf(hex_fmt_str, res_pkt.data), res_pkt.divisible),
                   UVM_MEDIUM);
-        analysis_port.write(ap);
+        analysis_port.write(res_pkt);
     endfunction : write
 endclass : div_ref_model
 
