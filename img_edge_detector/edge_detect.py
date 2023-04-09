@@ -194,8 +194,8 @@ class EdgeDetectLib:
 
         # Convolve given kernel across each pixel of input image
         arr_conv = np.zeros(in_np_arr.shape, dtype=int)
-        for y in range(in_np_arr.shape[0] - 2):  # Each row
-            for x in range(in_np_arr.shape[1] - 2):  # Each column
+        for y in range(in_np_arr.shape[0]):  # Each row
+            for x in range(in_np_arr.shape[1]):  # Each column
                 arr_conv[y][x] = np.sum(arr_padded[y:y+3, x:x+3] * conv_kernel_np)
         self.log.debug(f"Convolution applied {arr_conv.shape}:\n{arr_conv}")
 
