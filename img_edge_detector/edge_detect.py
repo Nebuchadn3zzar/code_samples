@@ -217,17 +217,17 @@ class EdgeDetectLib:
         # For each pixel, preserve value only if edge strength is largest
         # compared to adjacent pixels in X or Y directions
         arr_thinned = np.zeros(in_np_arr.shape, dtype=int)
-        for y in range(1, in_np_arr.shape[0] - 1):  # Each row
-            for x in range(1, in_np_arr.shape[1] - 1):  # Each column
-                center_pxl = arr_padded[y][x]
+        for y in range(in_np_arr.shape[0]):  # Each row
+            for x in range(in_np_arr.shape[1]):  # Each column
+                center_pxl = in_np_arr[y][x]
 
                 # X axis
-                strongest_x_pos = center_pxl >= max(arr_padded[y, x-1:x+2])
-                strongest_x_neg = center_pxl <= min(arr_padded[y, x-1:x+2])
+                strongest_x_pos = center_pxl >= max(arr_padded[y+1, x:x+3])
+                strongest_x_neg = center_pxl <= min(arr_padded[y+1, x:x+3])
 
                 # Y axis
-                strongest_y_pos = center_pxl >= max(arr_padded[y-1:y+2, x])
-                strongest_y_neg = center_pxl <= min(arr_padded[y-1:y+2, x])
+                strongest_y_pos = center_pxl >= max(arr_padded[y:y+3, x+1])
+                strongest_y_neg = center_pxl <= min(arr_padded[y:y+3, x+1])
 
                 # Preserve (copy from input to output array) only if edge
                 # strength largest compared to adjacent pixels
@@ -249,15 +249,11 @@ class EdgeDetectLib:
         self.log.info("Applying edge tracking using double-threshold " \
                       "hysteresis...")
 
-        # Duplicate edge pixels to handle edges and corners of image
-        arr_padded = np.pad(in_np_arr, (1, 1), "edge")
-        self.log.debug(f"Edges padded {arr_padded.shape}:\n{arr_padded}")
-
         # For each pixel, preserve value if pixel meets high threshold
         strong_pxls = np.zeros(in_np_arr.shape, dtype=int)
-        for y in range(1, in_np_arr.shape[0] - 1):  # Each row
-            for x in range(1, in_np_arr.shape[1] - 1):  # Each column
-                center_pxl = arr_padded[y][x]
+        for y in range(in_np_arr.shape[0]):  # Each row
+            for x in range(in_np_arr.shape[1]):  # Each column
+                center_pxl = in_np_arr[y][x]
 
                 if (center_pxl > THRESH_HI) or (center_pxl < -THRESH_HI):
                     strong_pxls[y][x] = in_np_arr[y][x]  # Strong edge
@@ -266,11 +262,11 @@ class EdgeDetectLib:
         # For each pixel, preserve value if pixel meets low threshold and is
         # connected to at least one strong edge pixel
         weak_pxls = np.zeros(in_np_arr.shape, dtype=int)
-        for y in range(1, in_np_arr.shape[0] - 1):  # Each row
-            for x in range(1, in_np_arr.shape[1] - 1):  # Each column
-                center_pxl = arr_padded[y][x]
+        for y in range(in_np_arr.shape[0]):  # Each row
+            for x in range(in_np_arr.shape[1]):  # Each column
+                center_pxl = in_np_arr[y][x]
 
-                if strong_pxls[y][x] > 0:  # Already preserved as strong pixel
+                if strong_pxls[y][x] != 0:  # Already preserved as strong pixel
                     continue  # Connected weak pixel determination unnecessary
                 elif (center_pxl > THRESH_LO) or (center_pxl < -THRESH_LO):
                     # Determine whether weak pixel is connected to at least one
