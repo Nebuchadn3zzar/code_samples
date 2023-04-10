@@ -1,24 +1,32 @@
-# Computer vision edge detector in Python
+# Computer vision edge detector in Python and Verilog
 
 * [Overview](#Overview)
 * [Method](#Method)
-* [Arguments](#Arguments)
-* [Example](#Example)
-* [Limitations](#Limitations)
+* [Python script](#Python-script)
+    * [Arguments](#Arguments)
+    * [Example](#Example)
+    * [Limitations](#Limitations)
+* [Verilog design](#Verilog-design)
+    * [Structure](#Structure)
+    * [Running](#Running)
 * [References](#References)
 
 ## Overview
 
 * Applies an edge detection operator to an input greyscale image, producing a new greyscale image file with detected edges marked
 * Employs algorithms commonly used in computer vision systems
+* Initially implemented as a [Python script](#Python-script), then ported to [Verilog](#Verilog-design)
 
 ## Method
 
 * Compute intensity gradient of image by convolving 3x3 Laplacian second derivative approximation kernel across each pixel of input image
 * Apply edge thinning using non-maximum suppression, to remove pixels not considered to be part of an edge
 * Apply edge tracking using double-threshold hysteresis, to filter out spurious edges caused by noise and color variation
+* Rectify negative pixel values and clip at maximum value, to produce final output edge pixel map
 
-## Arguments
+## Python script
+
+### Arguments
 
 Copied from output of `edge_detect.py --help`:
 ```
@@ -36,7 +44,7 @@ optional arguments:
   -v, --verbose  Enables verbose logging to facilitate debugging
 ```
 
-## Example
+### Example
 
 ```
 git clone git@github.com:willch3n/code_samples.git
@@ -53,11 +61,31 @@ Converted to 8-bit PGM format:<br/>
 Output image with detected edges marked:<br/>
 ![Output image with detected edges marked](images/pc_rear_edges_pgm_as_jpg_for_readme.jpg)
 
-## Limitations
-* Algorithm implementations are not the most optimal, concise, or efficient, because it is written with the intent to be used as a reference model and debugging aid for a Verilog module
+### Limitations
+* Algorithm implementations are not the most optimal, concise, or efficient, because it was written to be used as a reference model and debugging aid for a corresponding Verilog design
 * Accepts input image in only 8-bit PGM (portable grey map) format
 * Produces output image in only 8-bit PGM (portable grey map) format
 * Currently omits commonly-employed Gaussian smoothing step
+
+## Verilog design
+
+### Structure
+
+* [`design/`](design/):
+    * [`top.v`](design/top.v): Top RTL module that instantiates following sub-modules
+        * [`frame_buf.v`](design/frame_buf.v): Frame buffers containing greyscale bitmaps of input image, intermediate results, and final output image with detected edges marked
+        * [`step_seqr.v`](design/step_seqr.v): Sequences all steps comprising edge detection operator, starting each step in proper order and at proper timing
+        * [`intensity_grd.v`](design/intensity_grd.v): Computes intensity gradient using Laplacian second derivative approximation kernel
+        * [`edge_thin.v`](design/edge_thin.v): Applies edge thinning using non-maximum suppression
+        * [`edge_trk.v`](design/edge_trk.v): Applies edge tracking using double-threshold hysteresis
+        * [`rectify_clip.v`](design/rectify_clip.v): Rectifies negative pixel values and clips at maximum value
+    * [`tb.v`](design/tb.v): Crude manual testbench, to be later replaced with a proper SystemVerilog UVM testbench
+    * [`top.vh`](design/top.vh): Source file include list for Verilog design and testbench
+
+### Running
+
+* Compile [`top.vh`](design/top.vh), which includes all necessary Verilog source files
+* Run according to your simulator's instructions
 
 ## References
 * [OpenCV documentation - Canny Edge Detector](https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html)
