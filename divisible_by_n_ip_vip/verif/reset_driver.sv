@@ -7,7 +7,8 @@
 
 
 class reset_driver extends uvm_driver #(reset_txn);
-    virtual div_if div_vif;  // Virtual interface with DUT
+    virtual div_if div_vif;  // Virtual interface with divisibility checker module of DUT
+    virtual reg_if reg_vif;  // Virtual interface with register bus of DUT
 
     `uvm_component_utils(reset_driver);  // Register component with factory
 
@@ -17,11 +18,22 @@ class reset_driver extends uvm_driver #(reset_txn);
 
     function void build_phase(uvm_phase phase);
         if (!uvm_config_db#(virtual div_if)::get(this, "", "div_vif", div_vif)) begin
-            `uvm_fatal("DRVCFG", "No virtual interface object passed!");
+            `uvm_fatal("DRVCFG", "No divisibility checker virtual interface object passed!");
+        end
+        if (!uvm_config_db#(virtual reg_if)::get(this, "", "reg_vif", reg_vif)) begin
+            `uvm_fatal("DRVCFG", "No register bus virtual interface object passed!");
         end
     endfunction : build_phase
 
     virtual task reset_phase(uvm_phase phase);
+        // Initialise DUT input signals to idle values
+        div_vif.bitstream     <= 1'b0;
+        div_vif.bitstream_vld <= 1'b0;
+        reg_vif.reg_rd_en     <= 1'b0;
+        reg_vif.reg_wr_en     <= 1'b0;
+        reg_vif.reg_addr      <= `REG_ADDR_SZ'(0);
+        reg_vif.reg_wr_data   <= `REG_DATA_SZ'(0);
+
         forever begin
             seq_item_port.get_next_item(req);  // Blocking 'get'
             send_item(req);  // Drive transaction into DUT
@@ -30,21 +42,19 @@ class reset_driver extends uvm_driver #(reset_txn);
     endtask : reset_phase
 
     virtual task send_item(reset_txn txn);
-        // Initially de-assert
+        // Initially de-assert reset
         div_vif.rst_n <= 1'b1;
         @(posedge div_vif.clk);
 
-        // Assert for specified duration
+        // Assert reset for specified duration
         `uvm_info("DRV",
                   $sformatf("Applying reset for %0d clocks...", txn.reset_duration),
                   UVM_MEDIUM);
         @(posedge div_vif.clk);
-        div_vif.rst_n         <= 1'b0;
-        div_vif.bitstream     <= 1'b0;
-        div_vif.bitstream_vld <= 1'b0;
+        div_vif.rst_n <= 1'b0;
         repeat (txn.reset_duration) @(posedge div_vif.clk);
 
-        // De-assert
+        // De-assert reset
         div_vif.rst_n <= 1'b1;
         @(posedge div_vif.clk);
     endtask : send_item
