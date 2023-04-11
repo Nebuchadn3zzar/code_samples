@@ -169,6 +169,7 @@ class test_reg_built_in extends uvm_test;
     div_env env;
 
     // Sequences
+    rand reset_seq                rst_seq;
     rand uvm_reg_mem_built_in_seq reg_seq;
 
     `uvm_component_utils(test_reg_built_in);  // Register component with factory
@@ -183,7 +184,8 @@ class test_reg_built_in extends uvm_test;
         // Construct environment using factory
         env = div_env::type_id::create("env", this);
 
-        // Construct sequence using factory
+        // Construct sequences using factory
+        rst_seq = reset_seq::type_id::create("rst_seq");
         reg_seq = uvm_reg_mem_built_in_seq::type_id::create("reg_seq");
     endfunction : build_phase
 
@@ -200,6 +202,21 @@ class test_reg_built_in extends uvm_test;
         // Set register model that built-in register sequence is to test
         reg_seq.model = reg_model;
     endfunction : end_of_elaboration_phase
+
+    virtual task reset_phase(uvm_phase phase);
+        super.reset_phase(phase);
+
+        phase.raise_objection(this);
+
+        // Apply reset
+        `uvm_info("TEST", "Applying reset...", UVM_MEDIUM);
+        if (!rst_seq.randomize()) begin
+            `uvm_fatal("TEST", "Failed to randomise 'rst_seq'!");
+        end
+        rst_seq.start(env.rst_agt.sqr);
+
+        phase.drop_objection(this);
+    endtask : reset_phase
 
     virtual task main_phase(uvm_phase phase);
         super.main_phase(phase);
