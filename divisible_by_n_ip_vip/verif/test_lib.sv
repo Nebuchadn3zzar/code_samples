@@ -195,8 +195,10 @@ class test_reg_built_in extends uvm_test;
         super.end_of_elaboration_phase(phase);
 
         // Retrieve register model handle from resource database
-        if (!uvm_config_db#(reg_block_counter)::get(env.reg_agt.sqr, "", "reg_model", reg_model)) begin
-            `uvm_fatal("TEST", "Failed to retrieve 'reg_model' handle from resource database!");
+        if (!uvm_resource_db#(reg_block_counter)::read_by_name(
+            env.reg_agt.sqr.get_full_name(), "reg_model", reg_model, this
+        )) begin
+            `uvm_fatal("CFG_TEST", "Failed to retrieve 'reg_model' handle from resource database!");
         end
 
         // Set register model that built-in register sequence is to test

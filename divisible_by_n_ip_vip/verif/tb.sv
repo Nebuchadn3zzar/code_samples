@@ -42,8 +42,8 @@ module tb();
     // Run test
     initial begin
         // Store handles to physical interfaces into resource database as virtual interface handles
-        uvm_config_db#(virtual div_if)::set(null, "uvm_test_top.env.*", "div_vif", tb_div_if);
-        uvm_config_db#(virtual reg_if)::set(null, "uvm_test_top.env.*", "reg_vif", tb_reg_if);
+        uvm_resource_db#(virtual div_if)::set("uvm_test_top.env", "div_vif", tb_div_if);
+        uvm_resource_db#(virtual reg_if)::set("uvm_test_top.env", "reg_vif", tb_reg_if);
 
         run_test();
     end

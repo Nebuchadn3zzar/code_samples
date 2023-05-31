@@ -38,13 +38,21 @@ class div_env extends uvm_env;
         super.build_phase(phase);
 
         // Retrieve virtual interface objects from resource database
-        uvm_config_db#(virtual div_if)::get(this, "", "div_vif", div_vif);
-        uvm_config_db#(virtual reg_if)::get(this, "", "reg_vif", reg_vif);
+        if (!uvm_resource_db#(virtual div_if)::read_by_name(
+            get_full_name(), "div_vif", div_vif, this
+        )) begin
+            `uvm_fatal("CFG_ENV", "No divisibility checker virtual interface object passed!");
+        end
+        if (!uvm_resource_db#(virtual reg_if)::read_by_name(
+            get_full_name(), "reg_vif", reg_vif, this
+        )) begin
+            `uvm_fatal("CFG_ENV", "No register bus virtual interface object passed!");
+        end
 
         // Pass virtual interface objects down to lower-level components via resource database
         // (alternatively, set directly for speed)
-        uvm_config_db#(virtual div_if)::set(this, "*", "div_vif", div_vif);
-        uvm_config_db#(virtual reg_if)::set(this, "*", "reg_vif", reg_vif);
+        uvm_resource_db#(virtual div_if)::set({get_full_name(), ".*"}, "div_vif", div_vif, this);
+        uvm_resource_db#(virtual reg_if)::set({get_full_name(), ".*"}, "reg_vif", reg_vif, this);
 
         // Construct components using factory
         rst_agt   = reset_agent::type_id::create("rst_agt", this);
@@ -64,7 +72,9 @@ class div_env extends uvm_env;
         );
         reg_model.build();  // Create UVM register hierarchy
         reg_model.lock_model();  // Lock register hierarchy and build address map
-        uvm_config_db#(reg_block_counter)::set(this, "reg_agt.sqr", "reg_model", reg_model);
+        uvm_resource_db#(reg_block_counter)::set(
+            {get_full_name(), ".reg_agt.sqr"}, "reg_model", reg_model, this
+        );
     endfunction : build_phase
 
     virtual function void connect_phase(uvm_phase phase);

@@ -25,8 +25,10 @@ class div_monitor extends uvm_monitor;
     endfunction : new
 
     function void build_phase(uvm_phase phase);
-        if (!uvm_config_db#(virtual div_if)::get(this, "", "div_vif", div_vif)) begin
-            `uvm_fatal("DRVCFG", "No virtual interface object passed!");
+        if (!uvm_resource_db#(virtual div_if)::read_by_name(
+            get_full_name(), "div_vif", div_vif, this
+        )) begin
+            `uvm_fatal("CFG_MON", "No divisibility checker virtual interface object passed!");
         end
     endfunction : build_phase
 
