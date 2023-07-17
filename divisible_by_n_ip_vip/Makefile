@@ -43,12 +43,14 @@ RTL_DIR            = design/rtl
 RTL_SOURCES        = $(RTL_DIR)/top.v $(RTL_DIR)/divisible_by_N.v $(RTL_DIR)/div_counter.v
 TB_INCL_FILE       = verif/div_uvm_tb.svh
 
-# Compile/run constants
-TEST         = test_base
-UVM_DEFINES  = UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
-UVM_VER      = uvm-1.2
+# Compile/run defaults
+UVM_VER     ?= uvm-1.2
+UVM_DEFINES ?= UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
+TEST        ?= test_base
+SEED        ?= 1
+
+# Compile/run variables
 COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(RTL_SOURCES) $(TB_INCL_FILE)
-SEED         = 1
 RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
@@ -133,10 +135,10 @@ debug:
 	@echo "RTL_DIR            = $(RTL_DIR)"
 	@echo "RTL_SOURCES        = $(RTL_SOURCES)"
 	@echo "TB_INCL_FILE       = $(TB_INCL_FILE)"
-	@echo "TEST               = $(TEST)"
-	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "UVM_VER            = $(UVM_VER)"
+	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "COMPILE_ARGS       = $(COMPILE_ARGS)"
+	@echo "TEST               = $(TEST)"
 	@echo "SEED               = $(SEED)"
 	@echo "RUN_ARGS           = $(RUN_ARGS)"
 
