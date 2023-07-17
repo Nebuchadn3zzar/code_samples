@@ -52,7 +52,7 @@ SEED        ?= 1
 # Compile/run variables
 COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(RTL_SOURCES) $(TB_INCL_FILE)
 COMPILE_OUT  = simv
-RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
+RUN_ARGS     = -l simv.log +ntb_random_seed=$(SEED) +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
 ################################################################################
@@ -103,7 +103,7 @@ $(COMPILE_OUT): $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE)
 # Run simulation
 .PHONY: run_sim
 run_sim: $(COMPILE_OUT)
-	./simv +ntb_random_seed=$(SEED) $(RUN_ARGS)
+	./simv $(RUN_ARGS)
 
 # Coverage report
 .PHONY: gen_cov_report
