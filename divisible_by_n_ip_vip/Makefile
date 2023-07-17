@@ -51,6 +51,7 @@ SEED        ?= 1
 
 # Compile/run variables
 COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(RTL_SOURCES) $(TB_INCL_FILE)
+COMPILE_OUT  = simv
 RUN_ARGS     = -l simv.log +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
@@ -72,7 +73,7 @@ vip: $(OUT_TB_DEFINE_FILE)
 
 # Target: compile - Compiles design and testbench
 .PHONY: compile
-compile: simv
+compile: $(COMPILE_OUT)
 
 # Target: sim     - Runs a simulation using VCS
 .PHONY: sim
@@ -95,13 +96,13 @@ $(OUT_RTL_FSM_FILE): $(GEN_FSM_SCRIPT)
 $(OUT_TB_DEFINE_FILE):
 	echo "\`define DIV_BY $(DIV_BY)  // Integer divisor that DUT was generated for" > $(OUT_TB_DEFINE_FILE)
 
-# Simulator executable
-simv: $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE)
+# Compile
+$(COMPILE_OUT): $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE)
 	vcs $(COMPILE_ARGS)
 
 # Run simulation
 .PHONY: run_sim
-run_sim: simv
+run_sim: $(COMPILE_OUT)
 	./simv +ntb_random_seed=$(SEED) $(RUN_ARGS)
 
 # Coverage report
@@ -138,6 +139,7 @@ debug:
 	@echo "UVM_VER            = $(UVM_VER)"
 	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "COMPILE_ARGS       = $(COMPILE_ARGS)"
+	@echo "COMPILE_OUT        = $(COMPILE_OUT)"
 	@echo "TEST               = $(TEST)"
 	@echo "SEED               = $(SEED)"
 	@echo "RUN_ARGS           = $(RUN_ARGS)"
