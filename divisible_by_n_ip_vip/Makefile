@@ -7,6 +7,7 @@
 #
 # Arguments:
 #    * DIV_BY=N:        Sets divisor N to a value other than default of 3
+#    * SIMULATOR=vcs:   Uses Synopsys VCS instead of Siemens Questa Sim
 #    * UVM_VER=uvm-X.Y: Uses UVM 1.1 if UVM 1.2 not available
 #    * TEST=test_name:  Runs a test other than default of 'test_base'
 #    * SEED=S:          Simulates using a seed other than default of 1
@@ -30,7 +31,8 @@
 #         * Runs the test 'test_mostly_divisible' with a seed of 1234
 #
 # Notes:
-#    * 'compile', 'sim', and 'cov' targets require Synopsys VCS
+#    * 'compile', 'sim', and 'cov' targets require either Siemens Questa Sim or
+#      Synopsys VCS
 ################################################################################
 
 
@@ -44,15 +46,24 @@ RTL_SOURCES        = $(RTL_DIR)/top.v $(RTL_DIR)/divisible_by_N.v $(RTL_DIR)/div
 TB_INCL_FILE       = verif/div_uvm_tb.svh
 
 # Compile/run defaults
+SIMULATOR   ?= questa
 UVM_VER     ?= uvm-1.2
 UVM_DEFINES ?= UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR
 TEST        ?= test_base
 SEED        ?= 1
 
 # Compile/run variables
-COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER) $(RTL_SOURCES) $(TB_INCL_FILE)
-COMPILE_OUT  = simv
-RUN_ARGS     = -l simv.log +ntb_random_seed=$(SEED) +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
+ifeq ($(SIMULATOR), questa)  # Siemens Questa Sim
+	COMPILE_ARGS = -l compile.log -uvm -uvmhome $(UVM_VER)
+	COMPILE_OUT  = qrun.out
+	RUN_ARGS     = -l sim.log -sv_seed $(SEED) -coverage
+else  # Synopsys VCS
+	COMPILE_ARGS = -sverilog -timescale="1ns/1ns" -l compile.log -ntb_opts $(UVM_VER)
+	COMPILE_OUT  = simv
+	RUN_ARGS     = -l simv.log +ntb_random_seed=$(SEED)
+endif
+COMPILE_ARGS += $(RTL_SOURCES) $(TB_INCL_FILE)
+RUN_ARGS     += +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=UVM_MEDIUM
 
 
 ################################################################################
@@ -75,7 +86,7 @@ vip: $(OUT_TB_DEFINE_FILE)
 .PHONY: compile
 compile: $(COMPILE_OUT)
 
-# Target: sim     - Runs a simulation using VCS
+# Target: sim     - Runs a simulation using selected simulator
 .PHONY: sim
 sim: run_sim
 
@@ -98,17 +109,29 @@ $(OUT_TB_DEFINE_FILE):
 
 # Compile
 $(COMPILE_OUT): $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE)
+ifeq ($(SIMULATOR), questa)  # Siemens Questa Sim
+	qrun -optimize $(COMPILE_ARGS)
+else  # Synopsys VCS
 	vcs $(COMPILE_ARGS)
+endif
 
 # Run simulation
 .PHONY: run_sim
 run_sim: $(COMPILE_OUT)
+ifeq ($(SIMULATOR), questa)  # Siemens Questa Sim
+	qrun -simulate $(RUN_ARGS)
+else  # Synopsys VCS
 	./simv $(RUN_ARGS)
+endif
 
 # Coverage report
 .PHONY: gen_cov_report
 gen_cov_report:
+ifeq ($(SIMULATOR), questa)  # Siemens Questa Sim
+	vcover report -html -output cov_report $(TEST)_$(SEED).ucdb -details -annotate
+else  # Synopsys VCS
 	urg -dir simv.vdb
+endif
 
 
 ################################################################################
@@ -118,8 +141,8 @@ gen_cov_report:
 # Target: clean   - Removes all generated files for starting over
 .PHONY: clean
 clean:
-	-rm -rf $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE) simv* csrc* *.log *.h *.fsdb *.vpd *.vcd \
-    novas.* verdi* urgReport ucli.key
+	-rm -rf $(OUT_RTL_FSM_FILE) $(OUT_TB_DEFINE_FILE) qrun.out simv* csrc* *.log *.h *.fsdb *.vpd \
+    *.vcd modelsim.ini novas.* verdi* *.ucdb cov_report urgReport ucli.key
 
 # Target: help    - Lists each available make target and its purpose
 .PHONY: help
@@ -136,6 +159,7 @@ debug:
 	@echo "RTL_DIR            = $(RTL_DIR)"
 	@echo "RTL_SOURCES        = $(RTL_SOURCES)"
 	@echo "TB_INCL_FILE       = $(TB_INCL_FILE)"
+	@echo "SIMULATOR          = $(SIMULATOR)"
 	@echo "UVM_VER            = $(UVM_VER)"
 	@echo "UVM_DEFINES        = $(UVM_DEFINES)"
 	@echo "COMPILE_ARGS       = $(COMPILE_ARGS)"
