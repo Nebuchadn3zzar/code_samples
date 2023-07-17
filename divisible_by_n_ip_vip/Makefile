@@ -87,7 +87,7 @@ cov: gen_cov_report
 
 # Design files
 $(OUT_RTL_FSM_FILE): $(GEN_FSM_SCRIPT)
-	python $(GEN_FSM_SCRIPT) $(DIV_BY) $(OUT_RTL_FSM_FILE)
+	python3 $(GEN_FSM_SCRIPT) $(DIV_BY) $(OUT_RTL_FSM_FILE)
 
 # Testbench files
 $(OUT_TB_DEFINE_FILE):
