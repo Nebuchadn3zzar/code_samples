@@ -54,7 +54,7 @@ SEED        ?= 1
 
 # Compile/run variables
 ifeq ($(SIMULATOR), questa)  # Siemens Questa Sim
-	COMPILE_ARGS = -l compile.log -uvm -uvmhome $(UVM_VER)
+	COMPILE_ARGS = -l compile.log -uvm -uvmhome $(UVM_VER) +acc
 	COMPILE_OUT  = qrun.out
 	RUN_ARGS     = -l sim.log -sv_seed $(SEED) -coverage
 else  # Synopsys VCS
