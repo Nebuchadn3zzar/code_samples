@@ -17,6 +17,8 @@ class reset_driver extends uvm_driver #(reset_txn);
     endfunction : new
 
     function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         if (!uvm_resource_db#(virtual div_if)::read_by_name(
             get_full_name(), "div_vif", div_vif, this
         )) begin
@@ -30,6 +32,8 @@ class reset_driver extends uvm_driver #(reset_txn);
     endfunction : build_phase
 
     virtual task reset_phase(uvm_phase phase);
+        super.reset_phase(phase);
+
         // Initialise DUT input signals to idle values
         div_vif.bitstream     <= 1'b0;
         div_vif.bitstream_vld <= 1'b0;

@@ -16,6 +16,8 @@ class reg_driver extends uvm_driver #(reg_rw_item);
     endfunction : new
 
     function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         if (!uvm_resource_db#(virtual reg_if)::read_by_name(
             get_full_name(), "reg_vif", reg_vif, this
         )) begin
@@ -24,6 +26,8 @@ class reg_driver extends uvm_driver #(reg_rw_item);
     endfunction : build_phase
 
     virtual task run_phase(uvm_phase phase);
+        super.run_phase(phase);
+
         forever begin
             seq_item_port.get_next_item(req);  // Blocking 'get'
             send_item(req);  // Drive transaction into DUT

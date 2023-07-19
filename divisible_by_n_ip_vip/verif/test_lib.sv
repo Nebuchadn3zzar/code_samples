@@ -92,6 +92,8 @@ class test_base extends uvm_test;
     endtask : main_phase
 
     virtual task shutdown_phase(uvm_phase phase);
+        super.shutdown_phase(phase);
+
         // Wait for scoreboard to be empty
         if (env.div_sb.queue_empty.is_off()) begin  // Queue not yet empty
             `uvm_info("TEST", "Shutdown phase: Waiting for scoreboard to empty...", UVM_MEDIUM);

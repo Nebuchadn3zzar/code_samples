@@ -25,6 +25,8 @@ class div_monitor extends uvm_monitor;
     endfunction : new
 
     function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         if (!uvm_resource_db#(virtual div_if)::read_by_name(
             get_full_name(), "div_vif", div_vif, this
         )) begin
@@ -33,6 +35,8 @@ class div_monitor extends uvm_monitor;
     endfunction : build_phase
 
     virtual task run_phase(uvm_phase phase);
+        super.run_phase(phase);
+
         fork
             forever sample_stim();
             forever sample_result();

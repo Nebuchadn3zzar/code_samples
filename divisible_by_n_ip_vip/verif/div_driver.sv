@@ -18,6 +18,8 @@ class div_driver extends uvm_driver #(div_packet);
     endfunction : new
 
     function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         if (!uvm_resource_db#(virtual div_if)::read_by_name(
             get_full_name(), "div_vif", div_vif, this
         )) begin
@@ -26,6 +28,8 @@ class div_driver extends uvm_driver #(div_packet);
     endfunction : build_phase
 
     virtual task run_phase(uvm_phase phase);
+        super.run_phase(phase);
+
         forever begin
             seq_item_port.get_next_item(req);  // Blocking 'get'
             send_item(req);  // Drive transaction into DUT
