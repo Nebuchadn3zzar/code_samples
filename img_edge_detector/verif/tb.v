@@ -47,6 +47,8 @@ module tb();
 
     // Run simulation
     initial begin
+        int timeout_ns;
+
         $display("%0t: Testbench start", $time);
 
         // Waveform dumping configuration
@@ -81,12 +83,22 @@ module tb();
         dut_top.frame_buf_in.img_buf[04][03] = 'd000;
         dut_top.frame_buf_in.img_buf[04][04] = 'd254;
 
-        // Run for a pre-determined length of time
+        // Begin processing
         run = 1'b1;
-        #(1ns * 1500);
 
-        $display("%0t: Testbench end", $time);
-        $display("%0t: DUT reports done %0d", $time, done);
+        // Wait for DUT to report processing complete
+        fork
+            begin
+                wait (done);
+                $display("%0t: DUT reports done after %0d ns", $time, $time);
+            end
+            begin
+                timeout_ns = 1500;  // Maximum time, in ns, to wait for DUT to report done
+                #(1ns * timeout_ns);
+                $error("%0t: Timed out after waiting %0d ns for DUT to report done!", $time, timeout_ns);
+            end
+        join_any
+        disable fork;
 
         $dumpflush;
         $finish;
