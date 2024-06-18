@@ -7,5 +7,5 @@
 
 
 // Testbench source files
-`include "verif/tb.v"  // Manual testbench
+`include "verif/tb.sv"  // Manual testbench
 
