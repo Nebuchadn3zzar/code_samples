@@ -82,6 +82,7 @@ module tb();
         dut_top.frame_buf_in.img_buf[04][02] = 'd000;
         dut_top.frame_buf_in.img_buf[04][03] = 'd000;
         dut_top.frame_buf_in.img_buf[04][04] = 'd254;
+        print_in_buf();
 
         // Begin processing
         run = 1'b1;
@@ -95,13 +96,43 @@ module tb();
             begin
                 timeout_ns = 1500;  // Maximum time, in ns, to wait for DUT to report done
                 #(1ns * timeout_ns);
-                $error("%0t: Timed out after waiting %0d ns for DUT to report done!", $time, timeout_ns);
+                $error("%0t: Timed out after waiting %0d ns for DUT to report done!",
+                       $time, timeout_ns);
             end
         join_any
         disable fork;
 
+        print_out_buf();
         $dumpflush;
         $finish;
     end
+
+    // Prints contents of frame buffer containing input image
+    function void print_in_buf();
+        string row_str = "";
+
+        for (int y = 0; y < 5; ++y) begin
+            row_str = $sformatf("frame_buf_in.img_buf[%02d]:", y);
+            for (int x = 0; x < 5; ++x) begin
+                row_str = $sformatf("%s %03d",
+                                    row_str, dut_top.frame_buf_in.img_buf[y][x]);
+            end
+            $display("%0t: %s", $time, row_str);
+        end
+    endfunction : print_in_buf
+
+    // Prints contents of frame buffer containing output image
+    function void print_out_buf();
+        string row_str = "";
+
+        for (int y = 0; y < 5; ++y) begin
+            row_str = $sformatf("frame_buf_rectify_clip.img_buf[%02d]:", y);
+            for (int x = 0; x < 5; ++x) begin
+                row_str = $sformatf("%s %03d",
+                                    row_str, dut_top.frame_buf_rectify_clip.img_buf[y][x]);
+            end
+            $display("%0t: %s", $time, row_str);
+        end
+    endfunction : print_out_buf
 endmodule : tb
 
