@@ -79,12 +79,14 @@ Output image with detected edges marked:<br/>
         * [`edge_thin.v`](design/edge_thin.v): Applies edge thinning using non-maximum suppression
         * [`edge_trk.v`](design/edge_trk.v): Applies edge tracking using double-threshold hysteresis
         * [`rectify_clip.v`](design/rectify_clip.v): Rectifies negative pixel values and clips at maximum value
-    * [`tb.v`](design/tb.v): Crude manual testbench, to be later replaced with a proper SystemVerilog UVM testbench
-    * [`top.vh`](design/top.vh): Source file include list for Verilog design and testbench
+    * [`rtl.f`](design/rtl.f): Simulator command file containing source file list for Verilog design
+* [`verif/`](verif/):
+    * [`tb.v`](verif/tb.v): Crude manual testbench, to be later replaced with a proper SystemVerilog UVM testbench
+    * [`tb.svh`](verif/tb.svh): Source file include list for testbench
 
 ### Running
 
-* Compile [`top.vh`](design/top.vh), which includes all necessary Verilog source files
+* Compile all files listed in [`rtl.f`](design/rtl.f) and [`tb.svh`](verif/tb.svh) according to your compiler's instructions
 * Run according to your simulator's instructions
 
 ## References
