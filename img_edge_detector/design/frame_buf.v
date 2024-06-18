@@ -53,10 +53,14 @@ module frame_buf #(
         // Map from unflattened 2D array to flattened read data port
         for (int y = 0; y < WIN_HT; ++y) begin
             for (int x = 0; x < WIN_WD; ++x) begin
+`ifdef NO_SV_AUTO_VAR  // Compiler does not support SystemVerilog automatic variables
+                rd_data_flat[((y * (PXL_BITS * WIN_WD)) + (x * PXL_BITS)) +: PXL_BITS] = rd_data[y][x];
+`else  // NO_SV_AUTO_VAR not defined
                 automatic int y_ofst = y * (PXL_BITS * WIN_WD);
                 automatic int x_ofst = x * PXL_BITS;
 
                 rd_data_flat[(y_ofst + x_ofst) +: PXL_BITS] = rd_data[y][x];
+`endif  // NO_SV_AUTO_VAR
             end
         end
     end

@@ -28,7 +28,7 @@ SIMULATOR ?= icarus
 
 # Compile/run variables
 ifeq ($(SIMULATOR), icarus)  # Icarus Verilog
-	COMPILE_ARGS = -g2005-sv -s tb
+	COMPILE_ARGS = -g2005-sv -s tb -D NO_SV_AUTO_VAR
 	COMPILE_OUT  = a.out
 	RUN_ARGS     = -l sim.log
 endif

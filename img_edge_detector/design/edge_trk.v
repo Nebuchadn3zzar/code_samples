@@ -75,10 +75,14 @@ module edge_trk #(
         // Map from flattened frame buffer read port to unflattened internal 2D array
         for (int y = 0; y < WIN_HT; ++y) begin
             for (int x = 0; x < WIN_WD; ++x) begin
+`ifdef NO_SV_AUTO_VAR  // Compiler does not support SystemVerilog automatic variables
+                rd_data[y][x] = rd_data_flat[((y * (PXL_BITS * WIN_WD)) + (x * PXL_BITS)) +: PXL_BITS];
+`else  // NO_SV_AUTO_VAR not defined
                 automatic int y_ofst = y * (PXL_BITS * WIN_WD);
                 automatic int x_ofst = x * PXL_BITS;
 
                 rd_data[y][x] = rd_data_flat[(y_ofst + x_ofst) +: PXL_BITS];
+`endif  // NO_SV_AUTO_VAR
             end
         end
 
