@@ -62,6 +62,7 @@ Output image with detected edges marked:<br/>
 ![Output image with detected edges marked](images/pc_rear_edges_pgm_as_jpg_for_readme.jpg)
 
 ### Limitations
+
 * Algorithm implementations are not the most optimal, concise, or efficient, because it was written to be used as a reference model and debugging aid for a corresponding Verilog design
 * Accepts input image in only 8-bit PGM (portable grey map) format
 * Produces output image in only 8-bit PGM (portable grey map) format
@@ -86,10 +87,19 @@ Output image with detected edges marked:<br/>
 
 ### Running
 
+Environment setup:
+* `git clone git@github.com:willch3n/code_samples.git`
+* `cd img_edge_detector`
+
+Icarus Verilog:
+* `make all`
+
+Other simulators:
 * Compile all files listed in [`rtl.f`](design/rtl.f) and [`tb.svh`](verif/tb.svh) according to your compiler's instructions
 * Run according to your simulator's instructions
 
 ## References
+
 * [OpenCV documentation - Canny Edge Detector](https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html)
 * [Stepping Into the Filter - Understanding the Edge Detection Algorithms in Your Smartphone](https://cse442-17f.github.io/Sobel-Laplacian-and-Canny-Edge-Detection-Algorithms/)
 * [PGM Format Specification](https://netpbm.sourceforge.net/doc/pgm.html)
