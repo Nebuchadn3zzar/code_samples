@@ -159,18 +159,18 @@ class EdgeDetectLib:
         # Open file handle
         if os.path.exists(out_img_name):  # Output file already exists
             self.log.warning(f"Overwriting existing file '{out_img_name}'")
-        out_fh = open(out_img_name, "w")
+        out_fh = open(out_img_name, "wb")  # Write, binary
 
         # Write PGM header
-        out_fh.write(f"P5\n")  # Magic number for binary (raw) grey map
-        out_fh.write(f"{np_arr.shape[1]}\n")  # Width
-        out_fh.write(f"{np_arr.shape[0]}\n")  # Height
-        out_fh.write(f"{MAX_VAL}\n")  # Maximum grey value
+        out_fh.write(bytes(f"P5\n", "utf-8"))  # Binary (raw) grey map
+        out_fh.write(bytes(f"{np_arr.shape[1]}\n", "utf-8"))  # Width
+        out_fh.write(bytes(f"{np_arr.shape[0]}\n", "utf-8"))  # Height
+        out_fh.write(bytes(f"{MAX_VAL}\n", "utf-8"))  # Maximum grey value
 
         # Convert NumPy array to PGM raster and write to output file
         for p in np.ndarray.flatten(np_arr):
-            out_fh.write(chr(p))
-        out_fh.write("\n")
+            out_fh.write(bytes([p.item()]))  # Write binary value
+        out_fh.write(bytes("\n", "utf-8"))
 
         # Close file handle
         out_fh.close()
